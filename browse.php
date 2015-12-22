@@ -1,16 +1,5 @@
 <?php
-session_start();
-include_once 'dbconnect.php';
-
-echo "<h1>Collaboratory Achievement Management</h1>";
-
-if(isset($_REQUEST['logout'])) {
-	phpCAS::logout();
-}
-
-$onid = phpCAS::getUser();
-$res=mysql_query("SELECT * FROM Employees WHERE user_id='$onid'");
-$userRow=mysql_fetch_array($res);
+include_once 'header.php';
 
 /*IF($_POST['ach-delete']) {
 	$achievement = $_POST['achid'];
@@ -28,36 +17,24 @@ $userRow=mysql_fetch_array($res);
 //	}
 }*/
 
-echo "<h2>Logged in as ", $userRow['name'];
-echo "</h2>";
-echo '<header>
-	<div class="nav">
-	<nav>
-	<ul>
-	<li><a href="home.php">Home</a></li>
-	<li><a href="approvals.php">Approvals</a></li>
-	<li><a href="browse.php">Browse</a></li>
-	<li><a href="logout.php?logout">Logout</a></li>
-	</ul>
-	</nav>
-	</header>';
-
-$users = mysql_query("SELECT * FROM Employees");
-$num_users = mysql_num_rows($users);
+$users = $mysqli->query("SELECT * FROM users");
+$num_users = $users->num_rows;
 
 //if($userRow['name'] == 'master') {
 	for($i=0;$i<$num_users;$i++) {
-		$row = mysql_fetch_array($users);
+		$row = $users->fetch_array(MYSQLI_ASSOC);
 		echo '<div id=request>
-			<p>', $row['name'], '</p>
-			<p>', $row['project'], '</p>';
+			<p>', $row['firstname'], ' ', $row['lastname'], '</p>
+			<p>', $row['username'], '</p>';
 		$ach = unserialize($row['achievements']);
 		for($y=0;$y<count($ach);$y++) {
-			$achres = mysql_query("SELECT * FROM Achievements WHERE id=".$ach[$y]);
-			$achrow = mysql_fetch_array($achres);
 
-			echo '<input type="hidden" name="empid" value="', $row['user_id'], '" /><input type="hidden" name="achid" value="', $achrow['id'], '" />
-				<input type="image" src="', $achrow['img'], '" alt="', $achrow['name'], '" name="ach-delete" height="24" width="24" />';
+			$achres = $mysqli->query("SELECT * FROM levels WHERE id=".$ach[$y]);
+			$achrow = $achres->fetch_array(MYSQLI_ASSOC);
+			$nameres = $mysqli->query("SELECT * FROM achievementList WHERE id=".$achrow['achievementid']);
+			$namerow = $nameres->fetch_array(MYSQLI_ASSOC);
+			echo '<input type="hidden" name="empid" value="', $row['id'], '" /><input type="hidden" name="achid" value="', $achrow['id'], '" />
+				<input type="image" src="img/', $achrow['image'], '" alt="', $namerow['name'], '" name="ach-delete" height="24" width="24" />';
 		}
 		echo '<br></div>';
 	}

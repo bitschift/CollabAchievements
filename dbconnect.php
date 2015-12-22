@@ -1,14 +1,14 @@
 <?php
 
-$dbhost = 'oniddb.cws.oregonstate.edu';
-$dbname = 'parasura-db';
-$dbuser = 'parasura-db';
-$dbpass = 'XVIIBwcT84mSvLlJ';
+$dbhost = 'engr-db.engr.oregonstate.edu';
+$dbname = 'heer_achieve';
+$dbuser = 'heer_achieve';
+$dbpass = 'gNc3Phk7';
 
-$mysql_handle = mysql_connect($dbhost, $dbuser, $dbpass)
-	    or die("Error connecting to database server");
-
-mysql_select_db($dbname, $mysql_handle)
-	    or die("Error selecting database: $dbname");
+$mysqli = new mysqli($dbhost, $dbuser, $dbpass, $dbname,'3307');
+if ($mysqli->connect_errno) {
+		printf("Connection Failed, <B>Error: ".mysql_error()."</B><p>Contact <a HREF=\"mailto::support@engr.orst.edu\">COE Support</A></p>Connect failed: %s\n</BODY></HTML>", $mysqli->connect_error);
+			exit();
+}
 
 ?>

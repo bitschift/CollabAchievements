@@ -8,11 +8,14 @@ if (isset($_REQUEST['logout'])) {
 }
 
 if (isset($_POST['btn-signup'])) {
-	$name = mysql_real_escape_string($_POST['name']);
-	$email = mysql_real_escape_string($_POST['email']);
-	$project = mysql_real_escape_string($_POST['project']);
-
-	mysql_query("INSERT INTO Employees(name, email, project, onid) VALUES('$name', '$email', '$project', '$onid')");
+	$firstname = ($_POST['firstname']);
+	$lastname = ($_POST['lastname']);
+	$username = ($_POST['username']);
+	$a = array();
+	$array = serialize($a); 
+	$onid = phpCAS::getUser();
+	$userlevel = 0;
+	$mysqli->query("INSERT INTO users(firstname, lastname, username, onid, achievements, userlevel) VALUES('$firstname', '$lastname', '$username', '$onid', '$array', '$userlevel')");
 }
 // for this test, simply print that the authentication was successfull
 ?>
@@ -25,8 +28,8 @@ if (isset($_POST['btn-signup'])) {
     <p>the user's login is <b><?php echo phpCAS::getUser(); ?></b>.</p>
 <?php
 $onid = phpCAS::getUser();
-$x = mysql_query("SELECT * FROM Employees WHERE onid='$onid'");
-$y = mysql_num_rows($x);
+$x = $mysqli->query("SELECT * FROM users WHERE onid='$onid'");
+$y = $x->num_rows;
 if($y == 0) {
 	echo '<p>Welcome! We need you to register for the first time.</p>
 		<center>
@@ -34,13 +37,13 @@ if($y == 0) {
 		<form method="post">
 		<table align="center" width="30%" border="0">
 		<tr>
-		<td><input type="text" name="name" placeholder="Your Name" required /></td>
+		<td><input type="text" name="firstname" placeholder="First Name" required /></td>
 		</tr>
 		<tr>
-		<td><input type="text" name="email" placeholder="Prefered Email" required /></td>
+		<td><input type="text" name="lastname" placeholder="Last Name" required /></td>
 		</tr>
 		<tr>
-		<td><input type="text" name="project" placeholder="Project" required /></td>
+		<td><input type="text" name="username" placeholder="Username" required /></td>
 		</tr>
 		<tr>
 		<td><button type="submit" name="btn-signup">Register</button></td>
