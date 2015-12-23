@@ -2,9 +2,9 @@
 include_once 'header.php';
 
 // if master approves an achievement
-if(isset($_POST['btn-approve'])) {
-	$achievements = $_POST['achievement'];
-	$empRes = $mysqli->query("SELECT * FROM users WHERE id=".$_POST['emp_id']);
+if(isset($_REQUEST['btn-approve'])) {
+	$achievements = $_REQUEST['achievement'];
+	$empRes = $mysqli->query("SELECT * FROM users WHERE id=".$_REQUEST['emp_id']);
 	$empRow = $empRes->fetch_array(MYSQLI_ASSOC);
 	$empAch = array();
 	$empAch = unserialize($empRow['achievements']);
@@ -12,24 +12,24 @@ if(isset($_POST['btn-approve'])) {
 	array_push($empAch, $achievements);
 
 	$serialized = serialize($empAch);
-	$mysqli->query("UPDATE users SET achievements='$serialized' WHERE id=".$_POST['emp_id']);
-	$mysqli->query("UPDATE requests SET status='1' WHERE id=".$_POST['req_id']);	// status=1 means approved
+	$mysqli->query("UPDATE users SET achievements='$serialized' WHERE id=".$_REQUEST['emp_id']);
+	$mysqli->query("UPDATE requests SET status='1' WHERE id=".$_REQUEST['req_id']);	// status=1 means approved
 }
 
 // if master denies an achievement
-if(isset($_POST['btn-deny'])) {
-	$mysqli->query("UPDATE requests SET status='3' WHERE id=".$_POST['req_id']); // status=3 means denied
+if(isset($_REQUEST['btn-deny'])) {
+	$mysqli->query("UPDATE requests SET status='3' WHERE id=".$_REQUEST['req_id']); // status=3 means denied
 }
 
 // if user endorses an achievement
-if(isset($_POST['btn-endorse'])) {
-	$userid = $userRow['id'];
-	$mysqli->query("UPDATE requests SET committeeids='$userid' WHERE id=".$_POST['req_id']);
+if(isset($_REQUEST['btn-endorse'])) {
+	$userid = $userrow['id'];
+	$mysqli->query("UPDATE requests SET committeeids='$userid' WHERE id=".$_REQUEST['req_id']);
 }
 
 // achievements display for master
 // userlevel 3 suggests ability to approve/deny any request
-if($userRow['userlevel'] == '3') {
+if($userrow['userlevel'] == '3') {
 	$requests = $mysqli->query("SELECT * FROM requests");
 	$result_length = $requests->num_rows;
 	for($i=0;$i<$result_length;$i++) {
@@ -60,7 +60,7 @@ if($userRow['userlevel'] == '3') {
 		}
 	}
 } else {
-	$ser=$userRow['achievements'];
+	$ser=$userrow['achievements'];
 	$dest = array();
 	$dest = unserialize($ser);
 

@@ -1,11 +1,11 @@
 <?php
 include_once 'header.php';
 
-if(isset($_POST['btn-request'])) {
-	$achievement = $_POST['achievement'];
-	$level = $_POST['level'];
-	$userAch = unserialize($userRow['achievements']);
-	$userid = $userRow['id'];
+if(isset($_REQUEST['btn-request'])) {
+	$achievement = $_REQUEST['achievement'];
+	$level = $_REQUEST['level'];
+	$userAch = unserialize($userrow['achievements']);
+	$userid = $userrow['id'];
 
 	$levelRes = $mysqli->query("SELECT * FROM levels WHERE achievementid='$achievement' && level='$level'");
 	$levelRow = $levelRes->fetch_array(MYSQLI_ASSOC);
@@ -18,13 +18,35 @@ if(isset($_POST['btn-request'])) {
 	}
 	
 	$reqAch = $levelRow['id'];
-	$mysqli->query("INSERT INTO requests(requesterid, achievementid) VALUES('$userid', '$reqAch')");	
+	$query = "SELECT * FROM achievementList WHERE id = $achievement";
+	$result = $mysqli->query($query);
+	$row = $result->fetch_assoc();
+	$userrow['name'] = $row['name'];
+	$userrow['level'] = $level;
+	
+	$query = "SELECT * FROM requests WHERE requesterid = '$userid' AND achievementid = '$reqAch' AND status = 0";
+	$result = $mysqli->query($query);
+	if ($result->num_rows > 0) {//Already Under Review
+		echo "<script>alert('You have already requested to be reviewed for level $level of the " . $userrow['name'] . " achievement. Please wait for the that review to complete.');</script>";
+	} else{
+	$mysqli->query("INSERT INTO requests(requesterid, achievementid) VALUES('$userid', '$reqAch')");
+	
+	
+	$query = "SELECT * FROM achievementList WHERE id = $achievement";
+	$result = $mysqli->query($query);
+	$row = $result->fetch_assoc();
+	$userrow['name'] = $row['name'];
+	$userrow['level'] = $level;
+	
+	email_message('Achievement Request', $userrow['onid'] . '@oregonstate.edu', create_message('./emails/request.eml', $userrow));
+	}
+	
 }
 
-if(isset($_POST['btn-give'])) {
-	$achievement = $_POST['achievement'];
-	$level = $_POST['level'];
-	$employeeid = $_POST['employee'];	
+if(isset($_REQUEST['btn-give'])) {
+	$achievement = $_REQUEST['achievement'];
+	$level = $_REQUEST['level'];
+	$employeeid = $_REQUEST['employee'];	
 	$empRes = $mysqli->query("SELECT * FROM users WHERE id='$employeeid'");
 	$empRow = $empRes->fetch_array(MYSQLI_ASSOC);
 	$empAch = array();
@@ -50,17 +72,17 @@ if(isset($_POST['btn-give'])) {
 
 	array_push($empAch, $levelRow['id']);
 	$serialized = serialize($empAch);
-	$mysqli->query("UPDATE users SET achievements='$serialized' WHERE id=".$_POST['employee']);
+	$mysqli->query("UPDATE users SET achievements='$serialized' WHERE id=".$_REQUEST['employee']);
 }
 
-if(isset($_POST['btn-endorse'])) {
-	$achievement = $_POST['achievement'];
-	$empRes = $mysqli->query("SELECT * FROM users WHERE id=".$_POST['employee']);
+if(isset($_REQUEST['btn-endorse'])) {
+	$achievement = $_REQUEST['achievement'];
+	$empRes = $mysqli->query("SELECT * FROM users WHERE id=".$_REQUEST['employee']);
 	$empRow = $empRes->fetch_array(MYSQLI_ASSOC);
 	$empAch = array();
 	$empAch = unserialize($empRow['achievements']);
 	$empid = $empRow['id'];
-	$userid = $userRow['id'];
+	$userid = $userrow['id'];
 
 	$levelRes = $mysqli->query("SELECT * FROM levels WHERE achievementid='$achievement' && level='$level'");
 	$levelRow = $levelRes->fetch_array(MYSQLI_ASSOC);
@@ -79,11 +101,13 @@ if(isset($_POST['btn-endorse'])) {
 	
 }
 
-$ser = $userRow['achievements'];
+$ser = $userrow['achievements'];
 $dest = unserialize($ser);
 $cnt = count($dest);
 
-if($userRow['userlevel'] == '3') {
+echo '<body>';
+
+if($userrow['userlevel'] == '3') {
 	$achieve = $mysqli->query("SELECT * FROM achievementList");
 	$ach_length = $achieve->num_rows;
 
@@ -140,7 +164,7 @@ if($userRow['userlevel'] == '3') {
 	echo '<input type="submit" name="btn-endorse"></button></form></div>';
 }
 
-if($userRow['onid'] != 'heer') {
+
 	$achieve = $mysqli->query("SELECT * FROM achievementList");
 	$ach_length = $achieve->num_rows;
 
@@ -159,6 +183,8 @@ if($userRow['onid'] != 'heer') {
 		<option value="3">Level 3</option>';
 	echo '</select><br><br>';
 	echo '<input type="submit" name="btn-request"></button></form></div>';
-}
+
+
+echo '</body>';
 
 ?>

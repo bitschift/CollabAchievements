@@ -7,10 +7,10 @@ if (isset($_REQUEST['logout'])) {
 	phpCAS::logout();
 }
 
-if (isset($_POST['btn-signup'])) {
-	$firstname = ($_POST['firstname']);
-	$lastname = ($_POST['lastname']);
-	$username = ($_POST['username']);
+if (isset($_REQUEST['btn-signup'])) {
+	$firstname = ($_REQUEST['firstname']);
+	$lastname = ($_REQUEST['lastname']);
+	$username = ($_REQUEST['username']);
 	$a = array();
 	$array = serialize($a); 
 	$onid = phpCAS::getUser();
