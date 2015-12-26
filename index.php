@@ -1,6 +1,7 @@
 <?php
 include_once 'casconnect.php';
 include_once 'dbconnect.php';
+include_once 'phpfunctions.php';
 
 // logout if desired
 if (isset($_REQUEST['logout'])) {
@@ -15,7 +16,7 @@ if (isset($_REQUEST['btn-signup'])) {
 	$array = serialize($a); 
 	$onid = phpCAS::getUser();
 	$userlevel = 0;
-	$mysqli->query("INSERT INTO users(firstname, lastname, username, onid, achievements, userlevel) VALUES('$firstname', '$lastname', '$username', '$onid', '$array', '$userlevel')");
+	$mysqli->query("INSERT INTO users(firstname, lastname, username, onid, achievements, userlevel, hash) VALUES('$firstname', '$lastname', '$username', '$onid', '$array', '$userlevel','".randomhash()."')");
 }
 // for this test, simply print that the authentication was successfull
 ?>

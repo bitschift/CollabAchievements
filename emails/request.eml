@@ -1,0 +1,7 @@
+<div style='width:80%;border-style:dashed;border-width:2px;margin:3%;padding:2%;'>
+Dear {{username}},<BR><BR>
+<p>Congratulations on applying for the {{name}} - Level {{level}}. Now that you have requested this new achievement, your request will be 
+forwarded to several existing achievement holders for review. Pending their review, your request will be moved on to final approval by OSU faculty. You 
+can revisit the Achievement webpage to observe the status of your request. Requests take up to a week to be reviewed (even longer during 
+busy times).</p>
+</div>
