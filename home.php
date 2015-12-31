@@ -198,8 +198,24 @@ if ($userrow['userlevel'] > 1){
 <?php
 if ($userrow['userlevel'] > 2){
 	echo "<div class='row'><div style='padding-top:3em;' class='col-sm-8 col-sm-offset-2' ><h3>Admin Tasks</h3></div></div>";
-	echo "<div class='row'><div style='padding-top:3em;' class='col-sm-8 col-sm-offset-2' >";
+	echo "<div class='row'><div style='padding-top:3em;' class='col-sm-6 col-sm-offset-2' >";
 	
+	$approveids = Array();
+	$denyids = Array();
+	$abstainids = Array();
+	
+	$query = "SELECT id FROM verdicts WHERE verdict = 'Approve'";
+	$result = $mysqli->query($query);
+	while ($row = $result->fetch_assoc())
+		$approveids[] = $row['id'];
+	$query = "SELECT id FROM verdicts WHERE verdict = 'Abstain'";
+	$result = $mysqli->query($query);
+	while ($row = $result->fetch_assoc())
+		$abstainids[] = $row['id'];
+	$query = "SELECT id FROM verdicts WHERE verdict = 'Deny'";
+	$result = $mysqli->query($query);
+	while ($row = $result->fetch_assoc())
+		$denyids[] = $row['id'];
 	
 	$approvals = approvalslist($mysqli);
 	foreach ($approvals as $row){
@@ -207,10 +223,16 @@ if ($userrow['userlevel'] > 2){
 		$result = $mysqli->query($query);
 		$votetext = '';
 		$voteapproval = 0;
+		$votedeny = 0;
+		$voteabstain = 0;
 		$votetotal = 0;
 		while ($voterow = $result->fetch_assoc()){
-			if ($voterow['verdict'] == 1)
+			if (in_array($voterow['verdict'], $approveids))
 				$voteapproval++;
+			if (in_array($voterow['verdict'], $abstainids))
+				$voteabstain++;
+			if (in_array($voterow['verdict'], $denyids))
+				$votedeny++;
 			$votetotal++;
 		}
 		$query = "SELECT levels.level, levels.image, achievementList.name FROM levels INNER JOIN achievementList ON levels.achievementid = achievementList.id WHERE levels.id = " . $row['achievementid'] ." ORDER BY achievementList.name ASC, levels.level ASC";
@@ -218,9 +240,9 @@ if ($userrow['userlevel'] > 2){
 		$result = $mysqli->query($query);
 		$row2 = $result->fetch_assoc();
 		$achv_text = $row2['name'] . ' - Lvl ' . $row2['level'];
-		echo "<div class='col-sm-3 thumbnail' style='padding:.5em;margin:.5em;background-color:#f2f2f2;border-radius:10px;'>
+		echo "<div class='col-sm-4 thumbnail' style='padding:.5em;margin:.5em;background-color:#f2f2f2;border-radius:10px;'>
 		<div style='width:60%;float:left;'><p style='width:100%;display:block;'><b>" . date("m-d-Y",strtotime($row['created'])) . "</b><BR><b>".$row['username']."</b><BR>Achievement:<BR>".$achv_text."<BR>
-		Evidence: <a href='".$row['evidence']."'>LINK</a><BR>Votes: $voteapproval / $votetotal</p></div>
+		Evidence: <a href='".$row['evidence']."'>LINK</a><BR>A / B / D / T: $voteapproval / $voteabstain / $votedeny / $votetotal</p></div>
 		<div style='width:30%;float:right;'>
 		<form action='./approval.php' method='get'><input type='hidden' name='id' value='" . $row['id'] . "'><input class='form-control' type='submit' value='Approve' name='btn-approve'></button></form><BR><BR>
 		<form action='./approval.php' method='get'><input type='hidden' name='id' value='" . $row['id'] . "'><input class='form-control' type='submit' value='Deny' name='btn-deny'></button></form><BR><BR>
@@ -228,8 +250,8 @@ if ($userrow['userlevel'] > 2){
 		
 	}
 	
-	echo "</div></div>";
-	echo "<div class='row'><div class='col-sm-offset-2 col-sm-6' id='giveachievementinfo'></div>
+	echo "</div>";
+	echo "
 	<div class='col-sm-2' style='background-color:#f2f2f2;border-radius:10px;' id='myadmin'>";
 		$achieve = $mysqli->query("SELECT * FROM achievementList ORDER BY name ASC");
 	$ach_length = $achieve->num_rows;
@@ -254,6 +276,9 @@ if ($userrow['userlevel'] > 2){
 	echo '</select><br><br>';
 	echo '<input class="form-control" type="submit" value="Submit" name="btn-give"></button></form>';
 	echo "</div></div>";
+	
+	
+	echo "<div class='row'><div class='col-sm-offset-2 col-sm-6' id='giveachievementinfo'></div></div>";
 }
 ?>
 
