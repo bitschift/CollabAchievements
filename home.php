@@ -5,78 +5,77 @@ include_once 'header.php';
 echo '<body>';
 
 if(isset($_REQUEST['btn-request'])) {
-	$achievement = $_REQUEST['requestachievement'];
-	$level = $_REQUEST['requestlevel'];
-	$userAch = unserialize($userrow['achievements']);
+	$achievement = mysqli_real_escape_string($mysqli, $_REQUEST['requestachievement']);
+	$evidence = mysqli_real_escape_string($mysqli, $_REQUEST['evidence']);
+	$level = mysqli_real_escape_string($mysqli, $_REQUEST['requestlevel']);
 	$userid = $userrow['id'];
-
+	
+	$empRes = $mysqli->query("SELECT achievements.*, levels.level FROM achievements INNER JOIN levels ON levels.id = achievements.levelid WHERE userid=$userid");
+	$userAch = Array();
+	while ($empRow = $empRes->fetch_array(MYSQLI_ASSOC))
+		$userAch[] = $empRow;
+	
 	$levelRes = $mysqli->query("SELECT * FROM levels WHERE achievementid='$achievement' && level='$level'");
 	$levelRow = $levelRes->fetch_array(MYSQLI_ASSOC);
 	
-	for($i=0;$i<count($userAch);$i++) {
-		if($userAch[$i] == $achievement) {
-?>
-			<script>alert('Already have achievement');</script>
-<?php	}
+	$done = false;
+	foreach($userAch AS $row) {
+		if($row['levelid'] == $levelRow['id']) {
+			echo "<script>alert('You already have this achievement');</script>";
+			$done = true;
+		}
 	}
 	
-	$reqAch = $levelRow['id'];
-	$query = "SELECT * FROM achievementList WHERE id = $achievement";
-	$result = $mysqli->query($query);
-	$row = $result->fetch_assoc();
-	$userrow['name'] = $row['name'];
-	$userrow['level'] = $level;
-	
-	$query = "SELECT * FROM requests WHERE requesterid = '$userid' AND achievementid = '$reqAch' AND status = 0";
-	$result = $mysqli->query($query);
-	if ($result->num_rows > 0) {//Already Under Review
-		echo "<script>alert('You have already requested to be reviewed for level $level of the " . $userrow['name'] . " achievement. Please wait for the that review to complete.');</script>";
-	} else{
-	$mysqli->query("INSERT INTO requests(requesterid, achievementid, hash) VALUES('$userid', '$reqAch', '".randomhash()."')");
-	
-	
-	$query = "SELECT * FROM achievementList WHERE id = $achievement";
-	$result = $mysqli->query($query);
-	$row = $result->fetch_assoc();
-	$userrow['name'] = $row['name'];
-	$userrow['level'] = $level;
-	
-	email_message('Achievement Request', $userrow['onid'] . '@oregonstate.edu', create_message('./emails/request.eml', $userrow));
+	if ($done == false){
+		$reqAch = $levelRow['id'];
+		$query = "SELECT * FROM achievementList WHERE id = $achievement";
+		$result = $mysqli->query($query);
+		$row = $result->fetch_assoc();
+		$userrow['name'] = $row['name'];
+		$userrow['level'] = $level;
+		
+		$query = "SELECT requests.*, levels.level FROM requests INNER JOIN levels ON levels.id = requests.achievementid WHERE requesterid = '$userid' AND achievementid = '$reqAch' AND status = 0";
+		$result = $mysqli->query($query);
+		if ($result->num_rows > 0) {//Already Under Review
+			$row = $result->fetch_assoc();
+			echo "<script>alert('You already have an open request to be reviewed for level " . $row['level'] . " of the " . $userrow['name'] . " achievement. Please wait for the that review to complete.');</script>";
+		} else {
+			$userrow['hash'] = randomhash();
+			$mysqli->query("INSERT INTO requests(requesterid, achievementid, hash, evidence) VALUES('$userid', '$reqAch', '".$userrow['hash']."', '$evidence')");
+			$requestid = $mysqli->insert_id;
+			
+			//Email the requester with information
+			$query = "SELECT * FROM achievementList WHERE id = $achievement";
+			$result = $mysqli->query($query);
+			$row = $result->fetch_assoc();
+			$userrow['name'] = $row['name'];
+			$userrow['level'] = $level;
+			email_message('Achievement Request', $userrow['onid'] . '@oregonstate.edu', create_message('./emails/request.eml', $userrow));
+			
+			//Identify reviewers
+			$query = "SELECT DISTINCT users.* FROM users INNER JOIN achievements ON achievements.userid = users.id INNER JOIN levels ON levels.id = achievements.levelid WHERE achievements.achievementid = $achievement AND levels.level >= $level GROUP BY users.id LIMIT 5";
+			//echo $query . '<BR>';
+			$result = $mysqli->query($query);
+			while($row = $result->fetch_assoc()){
+				//echo 'Emailing: ' . $row['username'] . '<BR>';
+				$userrow['reviewername'] = $row['username'];
+				if (email_message('Achievement Review Request', $row['onid'] . '@oregonstate.edu', create_message('./emails/committee.eml', $userrow)) == 0){ // It worked
+					$query = "INSERT INTO reviews (requestid, reviewer, emaileddate) VALUES ($requestid, " . $row['id'] . ", NOW())";
+					$mysqli->query($query);
+				}
+				
+			}
+			
+		}
 	}
-	
 }
 
 if(isset($_REQUEST['btn-give'])) {
-	$achievement = $_REQUEST['giveachievement'];
-	$level = $_REQUEST['givelevel'];
-	$employeeid = $_REQUEST['employee'];	
-	$empRes = $mysqli->query("SELECT * FROM users WHERE id='$employeeid'");
-	//echo $query .'<BR>';
-	$empRow = $empRes->fetch_array(MYSQLI_ASSOC);
-	$empAch = array();
-	$empAch = unserialize($empRow['achievements']);
-
-	$levelRes = $mysqli->query("SELECT * FROM levels WHERE achievementid='$achievement' && level='$level'");
-	$levelRow = $levelRes->fetch_array(MYSQLI_ASSOC);
-
-	//query to erase a lower level if one exists
-	$lowerRes = $mysqli->query("SELECT * FROM levels WHERE achievementid='$achievement'");
-	$lowerRow = $lowerRes->fetch_array(MYSQLI_ASSOC);
-
-	$done = false;
-	for($i=0;$i<count($empAch);$i++) {
-		if($empAch[$i] == $levelRow['id']) {	
-?>
-			<script>alert('Already have achievement');</script>
-<?php		$done = true;
-			}
-		// remove previous levels
-	}
-
-	if ($done == false)
-		$empAch[] = $levelRow['id'];
-	$serialized = serialize($empAch);
-	$mysqli->query("UPDATE users SET achievements='$serialized' WHERE id=".$_REQUEST['employee']);
+	$achievement = mysqli_real_escape_string($mysqli, $_REQUEST['giveachievement']);
+	$level = mysqli_real_escape_string($mysqli, $_REQUEST['givelevel']);
+	$employeeid = mysqli_real_escape_string($mysqli, $_REQUEST['employee']);	
+	
+	addachievement($mysqli, $achievement, $level, $employeeid);
 }
 
 if(isset($_REQUEST['btn-endorse'])) { //This is to be reworked/removed soon
@@ -105,9 +104,6 @@ if(isset($_REQUEST['btn-endorse'])) { //This is to be reworked/removed soon
 	
 }
 
-$ser = $userrow['achievements'];
-$dest = unserialize($ser);
-$cnt = count($dest);
 ?>
 
 <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -122,7 +118,8 @@ $cnt = count($dest);
 		?>
 		</div>
 	</nav>
-<div class='row'><div style="padding-top:5em;" class='col-sm-1 col-sm-offset-1'><h3>Your Achievements</h3></div><div style="padding-top:5em;" class='col-sm-6' id='myachievements'>
+<div class='row'><div style="padding-top:5em;" class='col-sm-8 col-sm-offset-2'><h3>Your Achievements</h3></div></div>
+<div class='row'><div class='col-sm-6 col-sm-offset-2' id='myachievements'>
 <?php
 $myachievements = achievementlist($mysqli, $onid);
 if (empty($myachievements)){
@@ -135,7 +132,7 @@ if (empty($myachievements)){
 ?>
 </div><div style="margin-top:5em;background-color:#f2f2f2;border-radius:10px;" class='col-sm-2'>
 <form method="post" class="form-group"><label for="requestachievement">Request achievement:</label>
-<select name="requestachievement" id="requestachievement" class="form-control" onchange="loadrequestlevels()"><option>Choose ...</option>
+<select required name="requestachievement" id="requestachievement" class="form-control" onchange="loadrequestlevels()"><option value="">Choose ...</option>
 <?php
 		$achieve = $mysqli->query("SELECT * FROM achievementList");
 	$ach_length = $achieve->num_rows;
@@ -148,7 +145,9 @@ if (empty($myachievements)){
 		echo '<option value="', $achRow['id'], '">', $achRow['name'], '</option>';
 	}
 ?>
-</select><select name="requestlevel" id="requestlevel" class="form-control" onchange="loadrequestachievementinfo()"></select>
+</select><select required name="requestlevel" id="requestlevel" class="form-control" onchange="loadrequestachievementinfo()"></select>
+<label for="evidence">Link to Evidence:</label>
+<input type="url" required name="evidence" id="evidence" class="form-control"><br><br>
 <input type="submit" name="btn-request" value="Submit" class="form-control"></button></form>
 </div></div>
 
@@ -181,7 +180,8 @@ if (empty($myachievements)){
 
 <?php
 if ($userrow['userlevel'] > 1){
-	echo "<div class='row'><div style='padding-top:3%;' class='col-sm-1 col-sm-offset-1'><h3>Requests to Review</h3></div><div class='col-sm-8' id='myreviews'>";
+	echo "<div class='row'><div style='padding-top:3%;' class='col-sm-8 col-sm-offset-2'><h3>Requests to Review</h3></div></div>";
+	echo "<div class='row'><div class='col-sm-8 col-sm-offset-2' id='myreviews'>";
 	$requests = requestslist($mysqli, 'heer');
 	if (empty($requests)){
 		echo '<h2>You do not have any open requests to review</h2>';
@@ -189,7 +189,7 @@ if ($userrow['userlevel'] > 1){
 	foreach($requests as $request){
 		//echo '<div class="col-sm-2 thumbnail"><img class="img-responsive" style="width:100%;display:block;" src="./img/'.$achievement['image'].'" title="'.$achievement['name'].' - Level '.$achievement['level'].'"></div>';
 		echo "<div class='col-sm-3 thumbnail' style='padding:.5em;margin:.5em;background-color:#f2f2f2;border-radius:10px;'><p style='width:100%;display:block;'><b>".$request['username']."</b><BR>Achievement: ".$request['achievementid']."<BR>Evidence: <a href='".$request['evidence']."'>LINK</a></p></div>";
-	}
+		}
 	}
 	echo "</div></div>";
 }
@@ -197,16 +197,47 @@ if ($userrow['userlevel'] > 1){
 
 <?php
 if ($userrow['userlevel'] > 2){
-	echo "<div class='row'><div style='padding-top:3%;' class='col-sm-1 col-sm-offset-1' ><h3>Admin Tasks</h3></div>
-			<div style='margin-top:3em;' class='col-sm-6' id='giveachievementinfo'></div>
-	<div class='col-sm-2' style='margin-top:3em;background-color:#f2f2f2;border-radius:10px;' id='myadmin'>";
+	echo "<div class='row'><div style='padding-top:3em;' class='col-sm-8 col-sm-offset-2' ><h3>Admin Tasks</h3></div></div>";
+	echo "<div class='row'><div style='padding-top:3em;' class='col-sm-8 col-sm-offset-2' >";
+	
+	
+	$approvals = approvalslist($mysqli);
+	foreach ($approvals as $row){
+		$query = "SELECT * FROM reviews WHERE requestid = " . $row['id'];
+		$result = $mysqli->query($query);
+		$votetext = '';
+		$voteapproval = 0;
+		$votetotal = 0;
+		while ($voterow = $result->fetch_assoc()){
+			if ($voterow['verdict'] == 1)
+				$voteapproval++;
+			$votetotal++;
+		}
+		$query = "SELECT levels.level, levels.image, achievementList.name FROM levels INNER JOIN achievementList ON levels.achievementid = achievementList.id WHERE levels.id = " . $row['achievementid'] ." ORDER BY achievementList.name ASC, levels.level ASC";
+		//echo $query . '<BR>';
+		$result = $mysqli->query($query);
+		$row2 = $result->fetch_assoc();
+		$achv_text = $row2['name'] . ' - Lvl ' . $row2['level'];
+		echo "<div class='col-sm-3 thumbnail' style='padding:.5em;margin:.5em;background-color:#f2f2f2;border-radius:10px;'>
+		<div style='width:60%;float:left;'><p style='width:100%;display:block;'><b>" . date("m-d-Y",strtotime($row['created'])) . "</b><BR><b>".$row['username']."</b><BR>Achievement:<BR>".$achv_text."<BR>
+		Evidence: <a href='".$row['evidence']."'>LINK</a><BR>Votes: $voteapproval / $votetotal</p></div>
+		<div style='width:30%;float:right;'>
+		<form action='./approval.php' method='get'><input type='hidden' name='id' value='" . $row['id'] . "'><input class='form-control' type='submit' value='Approve' name='btn-approve'></button></form><BR><BR>
+		<form action='./approval.php' method='get'><input type='hidden' name='id' value='" . $row['id'] . "'><input class='form-control' type='submit' value='Deny' name='btn-deny'></button></form><BR><BR>
+		</div></div>";
+		
+	}
+	
+	echo "</div></div>";
+	echo "<div class='row'><div class='col-sm-offset-2 col-sm-6' id='giveachievementinfo'></div>
+	<div class='col-sm-2' style='background-color:#f2f2f2;border-radius:10px;' id='myadmin'>";
 		$achieve = $mysqli->query("SELECT * FROM achievementList ORDER BY name ASC");
 	$ach_length = $achieve->num_rows;
 
-	$empl = $mysqli->query("SELECT * FROM users");
+	$empl = $mysqli->query("SELECT * FROM users ORDER BY onid ASC");
 	$emplength = $empl->num_rows;
 
-	echo '<form method="get" class="form-group"><label for="employee">Give:</label><select class="form-control" name="employee" id="employee">';
+	echo '<form method="post" class="form-group"><label for="employee">Give:</label><select class="form-control" name="employee" id="employee"><option>Select User...</option>';
 	for($x=0;$x<$emplength;$x++) {
 		$empRow = $empl->fetch_array(MYSQLI_ASSOC);
 		echo '<option value="', $empRow['id'], '">' . $empRow['onid'] . ' - ' . $empRow['lastname'] . ', ' . $empRow['firstname'] . ' - ' . $empRow['username'] . '</option>';

@@ -5,7 +5,7 @@ include_once 'phpfunctions.php';
 
 
 $onid = phpCAS::getUser();
-$res = $mysqli->query("SELECT * FROM users WHERE onid='$onid'");
+$res = $mysqli->query("SELECT * FROM users WHERE onid = '$onid'");
 $userrow = $res->fetch_array(MYSQLI_ASSOC);		//keep an array of elements in the user's table for easy access
 
 if (isset($_REQUEST['logout'])) {

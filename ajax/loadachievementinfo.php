@@ -1,8 +1,6 @@
 <?php
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+
 
 //require_once ('../includes/phpfunctions.php');
 //include_once '../casconnect.php';
@@ -22,14 +20,14 @@ if (isset($requestlevel) AND isset($requestachievement)){
 	$row = $result->fetch_assoc();
 	echo '<h3>' . $row['name'] . '</h3><p>' . $row['achievementinfo'] . '</p>';
 	if ($row['level'] == $requestlevel)
-		echo '<p style="margin-left:5em;margin-right:5em;"><strong>Level: '.$row['level'].'<BR>' . nl2br($row['info']) . '</strong></p>';
+		echo '<strong>Level: '.$row['level'].'<BR>' . nl2br($row['info']) . '</strong><BR>';
 	else
-		echo '<p style="margin-left:5em;margin-right:5em;">Level: '.$row['level'].'<BR>' . nl2br($row['info']) . '</p>';
+		echo 'Level: '.$row['level'].'<BR>' . nl2br($row['info']) . '<BR>';
 	while ($row = $result->fetch_assoc()){
 		if ($row['level'] == $requestlevel)
-			echo '<p style="margin-left:5em;margin-right:5em;"><strong>Level: '.$row['level'].'<BR>' . nl2br($row['info']) . '</strong></p>';
+			echo '<strong>Level: '.$row['level'].'<BR>' . nl2br($row['info']) . '</strong><BR>';
 		else
-			echo '<p style="margin-left:5em;margin-right:5em;">Level: '.$row['level'].'<BR>' . nl2br($row['info']) . '</p>';
+			echo 'Level: '.$row['level'].'<BR>' . nl2br($row['info']) . '<BR>';
 	}
 } 
 
@@ -47,13 +45,13 @@ if (isset($givelevel) AND isset($giveachievement)){
 	$row = $result->fetch_assoc();
 	echo '<h3>' . $row['name'] . '</h3><p>' . $row['achievementinfo'] . '</p>';
 	if ($row['level'] == $givelevel)
-		echo '<p style="margin-left:5em;margin-right:5em;"><strong>Level: '.$row['level'].'<BR>' . nl2br($row['info']) . '</strong></p>';
+		echo '<strong>Level: '.$row['level'].'<BR>' . nl2br($row['info']) . '</strong><BR>';
 	else
-		echo '<p style="margin-left:5em;margin-right:5em;">Level: '.$row['level'].'<BR>' . nl2br($row['info']) . '</p>';
+		echo 'Level: '.$row['level'].'<BR>' . nl2br($row['info']) . '<BR>';
 	while ($row = $result->fetch_assoc()){
 		if ($row['level'] == $givelevel)
-			echo '<p style="margin-left:5em;margin-right:5em;"><strong>Level: '.$row['level'].'<BR>' . nl2br($row['info']) . '</strong></p>';
+			echo '<strong>Level: '.$row['level'].'<BR>' . nl2br($row['info']) . '</strong><BR>';
 		else
-			echo '<p style="margin-left:5em;margin-right:5em;">Level: '.$row['level'].'<BR>' . nl2br($row['info']) . '</p>';
+			echo 'Level: '.$row['level'].'<BR>' . nl2br($row['info']) . '<BR>';
 	}
 } 

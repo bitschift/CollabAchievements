@@ -3,9 +3,9 @@ Dear {{reviewername}},<BR><BR>
 <p>Being an achievement holder in {{name}}, we would like to request that spend a few moments of your time to look over another 
 student who is looking to level up in the same achievement. Following the link below you will be given the option to review 
 {{username}}'s submission. Based on what has been submitted you will be asked to either recommend, reject, or abstain. The 
-applicant will not be told who reviewed their submission or what you recommended. You do have the option to reach out to the 
+applicant will not be told who reviewed their submission or what you personally recommended. You do have the option to reach out to the 
 applicant if you want to ask for more information or to help out as needed.</p>
-<p>If at all possible, please try to review this submission now or in the next couple days. This applicant may be actively waiting for your help.
+<p>If at all possible, please try to review this submission <b>now</b> or in the next couple days. This applicant may be actively waiting for your help.
 Requests take up to a week to be reviewed (even longer during busy times).</p>
-<a href="">Review Request</a>
+<a href="http://eecs.oregonstate.edu/education/achievements3/review.php?reviewhash={{hash}}">Review Request</a>
 </div>

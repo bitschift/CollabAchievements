@@ -1,0 +1,5 @@
+<div style='width:80%;margin:3%;padding:2%;'>
+Dear {{username}},<BR><BR>
+<p>Congratulations you have been approved for the {{name}} - Level {{level}} achievement! You 
+can revisit the Achievement webpage to see this new achievement. Congratulations!</p>
+</div>
