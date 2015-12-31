@@ -103,10 +103,10 @@ function requestslist($mysqli, $onid){
 		return NULL;
 	$row = $result->fetch_array();
 	$myid = $row['id'];
-	$query = "SELECT reviews.*, users.username, requests.evidence, requests.achievementid FROM reviews 
+	$query = "SELECT reviews.*, users.username, requests.evidence, requests.achievementid, requests.hash FROM reviews 
 	INNER JOIN requests ON requests.id = reviews.requestid 
 	INNER JOIN users ON users.id = requests.requesterid 
-	WHERE reviews.reviewer = $myid AND reviews.completeddate IS NULL";
+	WHERE reviews.reviewer = $myid AND (requests.status = 0 AND reviews.completeddate IS NULL)";
 	//echo $query . '<BR>';
 	$result = $mysqli->query($query);
 	if ($result == NULL)

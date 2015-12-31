@@ -51,6 +51,42 @@ if(isset($_REQUEST['btn-approve']) AND isset($_REQUEST['id'])) {
 	
 }
 
+if(isset($_REQUEST['btn-deny']) AND isset($_REQUEST['id'])) {
+	$id = mysqli_real_escape_string($mysqli, $_REQUEST['id']);
+	if ($userrow['userlevel'] > 2){ // OK to approve
+		$query = "UPDATE requests SET status = 2 WHERE id = " . $id;
+		//echo '<br><br><br>' . $query . '<br>';
+		$mysqli->query($query);	
+		
+		$query = "SELECT levels.*, requests.requesterid, requests.comment FROM levels INNER JOIN requests ON levels.id = requests.achievementid WHERE requests.id = $id";
+		//echo '<br><br><br>' . $query . '<br>';
+		$result = $mysqli->query($query);	
+		$row = $result->fetch_assoc();
+		
+		$query = "SELECT * FROM users WHERE id = " . $row['requesterid'];
+		$result = $mysqli->query($query);
+		$row2 = $result->fetch_assoc();
+		
+		$query = "SELECT * FROM achievementList WHERE id = " . $row['achievementid'];
+		$result = $mysqli->query($query);
+		$temprow = $result->fetch_assoc();
+		$row2['name'] = $temprow['name'];
+		$row2['level'] = $level;
+		
+		$row2['comment'] = $row['comment'];
+		
+		email_message('Achievement ' . $row2['name']  . ' Denied', $row2['onid'] . '@oregonstate.edu', create_message('./emails/deny.eml', $row2));
+		
+		echo '<h3><BR><BR>All Done!</h3><a href="./home.php">Go Back</a>';
+		exit();
+
+	} else { //Should generate an email someone is poking around
+		echo '';
+	}
+	
+}
+
+
 if (isset($_REQUEST['reviewhash'])){
 	$hash = mysqli_real_escape_string($mysqli, $_REQUEST['reviewhash']);
 	$query = "SELECT reviews.*, requests.requesterid, requests.achievementid AS levelid, requests.evidence, requests.created, requests.status FROM reviews INNER JOIN requests ON requests.id = reviews.requestid WHERE requests.hash = '$hash' AND reviews.reviewer = " . $userrow['id'];

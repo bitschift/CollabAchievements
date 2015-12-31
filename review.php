@@ -30,11 +30,12 @@ if (isset($_REQUEST['logout'])) {
 
 if(isset($_REQUEST['btn-approve']) AND isset($_REQUEST['hash'])) {
 	$hash = mysqli_real_escape_string($mysqli, $_REQUEST['hash']);
+	$comment = mysqli_real_escape_string($mysqli, $_REQUEST['comment']);
 	$query = "SELECT reviews.id FROM reviews INNER JOIN requests ON requests.id = reviews.requestid WHERE requests.hash = '$hash'";
 	//echo '<br><br><br>' . $query . '<br>';
 	$result = $mysqli->query($query);
 	$row = $result->fetch_assoc();
-	$query = "UPDATE reviews SET verdict = 1, completeddate = NOW() WHERE id = " . $row['id'];
+	$query = "UPDATE reviews SET verdict = 1, completeddate = NOW(), comment = '$comment' WHERE id = " . $row['id'];
 	//echo '<br><br><br>' . $query . '<br>';
 	$mysqli->query($query);
 	
@@ -44,12 +45,13 @@ if(isset($_REQUEST['btn-approve']) AND isset($_REQUEST['hash'])) {
 
 if(isset($_REQUEST['btn-deny']) AND isset($_REQUEST['hash'])) {
 	$hash = mysqli_real_escape_string($mysqli, $_REQUEST['hash']);
+	$comment = mysqli_real_escape_string($mysqli, $_REQUEST['comment']);
 	$deny_select = mysqli_real_escape_string($mysqli, $_REQUEST['deny_select']);
 	$query = "SELECT reviews.id FROM reviews INNER JOIN requests ON requests.id = reviews.requestid WHERE requests.hash = '$hash'";
 	//echo '<br><br><br>' . $query . '<br>';
 	$result = $mysqli->query($query);
 	$row = $result->fetch_assoc();
-	$query = "UPDATE reviews SET verdict = $deny_select, completeddate = NOW() WHERE id = " . $row['id'];
+	$query = "UPDATE reviews SET verdict = $deny_select, completeddate = NOW(), comment = '$comment' WHERE id = " . $row['id'];
 	//echo '<br><br><br>' . $query . '<br>';
 	$mysqli->query($query);
 	
@@ -59,12 +61,13 @@ if(isset($_REQUEST['btn-deny']) AND isset($_REQUEST['hash'])) {
 
 if(isset($_REQUEST['btn-abstain']) AND isset($_REQUEST['hash'])) {
 	$hash = mysqli_real_escape_string($mysqli, $_REQUEST['hash']);
+	$comment = mysqli_real_escape_string($mysqli, $_REQUEST['comment']);
 	$abstain_select = mysqli_real_escape_string($mysqli, $_REQUEST['abstain_select']);
 	$query = "SELECT reviews.id FROM reviews INNER JOIN requests ON requests.id = reviews.requestid WHERE requests.hash = '$hash'";
 	//echo '<br><br><br>' . $query . '<br>';
 	$result = $mysqli->query($query);
 	$row = $result->fetch_assoc();
-	$query = "UPDATE reviews SET verdict = $abstain_select, completeddate = NOW() WHERE id = " . $row['id'];
+	$query = "UPDATE reviews SET verdict = $abstain_select, completeddate = NOW(), comment = '$comment' WHERE id = " . $row['id'];
 	//echo '<br><br><br>' . $query . '<br>';
 	$mysqli->query($query);
 	
@@ -130,6 +133,8 @@ if (isset($_REQUEST['reviewhash'])){
 			<div style='padding:1em;margin:1em;background-color:#f2f2f2;border-radius:10px;'>
 			<form method='post' class='form-group'>
 			<input type='hidden' name='hash' value='$hash'>
+			<label for='comment'>Comment:</label>
+			<textarea class='form-control' rows='3' id='comment' name='comment'></textarea>
 			<input class='form-control' type='submit' value='Approve' name='btn-approve'></button></form>
 			</div>
 			
@@ -144,6 +149,8 @@ if (isset($_REQUEST['reviewhash'])){
 				echo "<div class='radio'><label><input type='radio' name='abstain_select' value='".$row['id']."' required>".$row['content']."</label></div>";
 			
 			echo "<br>
+			<label for='comment'>Comment:</label>
+			<textarea class='form-control' rows='3' id='comment' name='comment'></textarea>
 			<input class='form-control' type='submit' value='Abstain' name='btn-abstain'></button></form>
 			</div>
 			
@@ -158,6 +165,8 @@ if (isset($_REQUEST['reviewhash'])){
 				echo "<div class='radio'><label><input type='radio' name='deny_select' value='".$row['id']."' required>".$row['content']."</label></div>";
 
 			echo "<br>
+			<label for='comment'>Comment:</label>
+			<textarea class='form-control' rows='3' id='comment' name='comment'></textarea>
 			<input class='form-control' type='submit' value='Deny' name='btn-deny'></button></form>
 			</div></div></div>
 			";

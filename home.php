@@ -187,8 +187,7 @@ if ($userrow['userlevel'] > 1){
 		echo '<h2>You do not have any open requests to review</h2>';
 	} else {
 	foreach($requests as $request){
-		//echo '<div class="col-sm-2 thumbnail"><img class="img-responsive" style="width:100%;display:block;" src="./img/'.$achievement['image'].'" title="'.$achievement['name'].' - Level '.$achievement['level'].'"></div>';
-		echo "<div class='col-sm-3 thumbnail' style='padding:.5em;margin:.5em;background-color:#f2f2f2;border-radius:10px;'><p style='width:100%;display:block;'><b>".$request['username']."</b><BR>Achievement: ".$request['achievementid']."<BR>Evidence: <a href='".$request['evidence']."'>LINK</a></p></div>";
+		echo "<div class='col-sm-3 thumbnail' style='padding:.5em;margin:.5em;background-color:#f2f2f2;border-radius:10px;'><p style='width:100%;display:block;'><b>".$request['username']."</b><BR>Achievement: ".$request['achievementid']."<BR><a href='./review.php?reviewhash=" . $request['hash'] . "'>Review</a></p></div>";
 		}
 	}
 	echo "</div></div>";

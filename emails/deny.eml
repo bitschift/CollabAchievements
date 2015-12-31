@@ -1,0 +1,7 @@
+<div style='width:80%;margin:3%;padding:2%;'>
+Dear {{username}},<BR><BR>
+<p>Unfortunately you have been denied for the {{name}} - Level {{level}} achievement. 
+Some comments from the review are below. You are more than welcome to make the suggested 
+improvements and request this level again.</p>
+{{comment}}
+</div>
