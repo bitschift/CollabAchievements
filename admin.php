@@ -10,7 +10,7 @@ if (isset($_POST['btn-request'])) {
 	$cnt = $poop->num_rows;
 	for ($x=0;$x<$cnt;$x++) {
 		$scoop = $poop->fetch_array(MYSQLI_ASSOC);
-		echo '<br><p>Level ', $x, '</p><br>';
+		echo '<br><p>Level ', $x+1, '</p><br>';
 		loadAchievement($scoop['id'], $mysqli);
 	}
 }
