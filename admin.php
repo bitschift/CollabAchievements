@@ -5,11 +5,14 @@ echo '<body>';
 
 if (isset($_POST['btn-request'])) {
 	$achievementid = $_POST['achievement'];
-	$level = $_POST['level'];
 	
-	$poop = $mysqli->query("SELECT * FROM levels WHERE achievementid='$achievementid' && level='$level'");
-	$scoop = $poop->fetch_array(MYSQLI_ASSOC);
-	loadAchievement($scoop['id'], $mysqli);
+	$poop = $mysqli->query("SELECT * FROM levels WHERE achievementid='$achievementid'");
+	$cnt = $poop->num_rows;
+	for ($x=0;$x<$cnt;$x++) {
+		$scoop = $poop->fetch_array(MYSQLI_ASSOC);
+		echo '<br><p>Level ', $x, '</p><br>';
+		loadAchievement($scoop['id'], $mysqli);
+	}
 }
 
 if (isset($_POST['btn-update'])) {
@@ -45,10 +48,6 @@ for ($y=0; $y<$count; $y++) {
 	$achRow = $achRes->fetch_array(MYSQLI_ASSOC);
 	echo '<option value="', $achRow['id'], '">', $achRow['name'], '</option>';
 }
-echo '</select><select name="level">';
-echo '<option value="1">Level 1</option>
-<option value="2">Level 2</option>
-<option value="3">Level 3</option>';
 echo '</select><br><br>';
 echo '<input type="submit" name="btn-request"></button></form></div>';
 
