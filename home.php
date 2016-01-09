@@ -4,6 +4,26 @@ include_once 'header.php';
 
 echo '<body>';
 
+if (isset($_REQUEST['btn-signup'])) {
+	$firstname = trim(mysqli_real_escape_string($mysqli, $_REQUEST['firstname']));
+	$lastname = trim(mysqli_real_escape_string($mysqli, $_REQUEST['lastname']));
+	$username = trim(mysqli_real_escape_string($mysqli, $_REQUEST['username']));
+	$onid = phpCAS::getUser();
+	
+	if (isset($_REQUEST['firstname']) AND isset($_REQUEST['lastname']) AND isset($_REQUEST['username'])){
+		$mysqli->query("INSERT INTO users(firstname, lastname, username, onid, userlevel, hash) VALUES('$firstname', '$lastname', '$username', '$onid', 0,'".randomhash()."')");
+		echo '<html>
+			<head>
+			<title>Achievements</title>
+			</head>
+			<body>
+			<h1>Successful Authentication!</h1>
+			<p>the user\'s login is <b>' . phpCAS::getUser() . '</b>.</p>';
+		echo '<meta http-equiv="refresh" content="0; url=home.php" />';
+	}
+}
+
+
 if(isset($_REQUEST['btn-request'])) {
 	$achievement = mysqli_real_escape_string($mysqli, $_REQUEST['requestachievement']);
 	$evidence = mysqli_real_escape_string($mysqli, $_REQUEST['evidence']);
@@ -118,6 +138,43 @@ if(isset($_REQUEST['btn-endorse'])) { //This is to be reworked/removed soon
 		?>
 		</div>
 	</nav>
+
+<?php
+
+if (isset($onid)){
+	$x = $mysqli->query("SELECT * FROM users WHERE onid='$onid'");
+	$y = $x->num_rows;
+	if($y == 0) {
+		echo "<div class='row'><div style='padding-top:5em;' class='col-sm-8 col-sm-offset-2'><p>Welcome! We need you to register for the first time.</p>
+		<center>
+		<div id='login-form'>
+		<form method='post'>
+		<table align='center' width='30%' border='0'>
+		<tr>
+		<td><input type='text' name='firstname' placeholder='First Name' required /></td>
+		</tr>
+		<tr>
+		<td><input type='text' name='lastname' placeholder='Last Name' required /></td>
+		</tr>
+		<tr>
+		<td><input type='text' name='username' placeholder='Username' required /></td>
+		</tr>
+		<tr>
+		<td><button type='submit' name='btn-signup'>Register</button></td>
+		</tr>
+		</table>
+		</form>
+		</div>
+		<p><a href='?logout='>Logout</a></p>
+		</center></div></div>";
+		
+		echo '</body>
+</html>';
+exit();
+	} 
+}
+?>	
+	
 <div class='row'><div style="padding-top:5em;" class='col-sm-8 col-sm-offset-2'><h3>Your Achievements</h3></div></div>
 <div class='row'><div class='col-sm-6 col-sm-offset-2' id='myachievements'>
 <?php
@@ -244,7 +301,7 @@ if ($userrow['userlevel'] > 2){
 		Evidence: <a href='".$row['evidence']."'>LINK</a><BR>A / B / D / T: $voteapproval / $voteabstain / $votedeny / $votetotal</p></div>
 		<div style='width:30%;float:right;'>
 		<form action='./approval.php' method='get'><input type='hidden' name='id' value='" . $row['id'] . "'><input class='form-control' type='submit' value='Approve' name='btn-approve'></button></form><BR><BR>
-		<form action='./approval.php' method='get'><input type='hidden' name='id' value='" . $row['id'] . "'><input class='form-control' type='submit' value='Deny' name='btn-deny'></button></form><BR><BR>
+		<form action='./approval.php' method='get'><input type='hidden' name='reviewhash' value='" . $row['hash'] . "'><input class='form-control' type='submit' value='More...'></button></form><BR><BR>
 		</div></div>";
 		
 	}

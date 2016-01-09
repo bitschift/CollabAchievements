@@ -130,7 +130,7 @@ Must be passed a valid mysqli object for database access
 ***************************************/
 function approvalslist($mysqli){
 	$returnvalue = Array();
-	$query = "SELECT requests.id, achievementList.name, levels.level, users.username, requests.evidence, requests.achievementid, requests.created, requests.requesterid FROM requests INNER JOIN levels ON levels.id = requests.achievementid INNER JOIN achievementList ON achievementList.id = levels.achievementid INNER JOIN users ON users.id = requests.requesterid WHERE status = 0 ORDER BY requests.created ASC";
+	$query = "SELECT requests.id, requests.hash, achievementList.name, levels.level, users.username, requests.evidence, requests.achievementid, requests.created, requests.requesterid FROM requests INNER JOIN levels ON levels.id = requests.achievementid INNER JOIN achievementList ON achievementList.id = levels.achievementid INNER JOIN users ON users.id = requests.requesterid WHERE status = 0 ORDER BY requests.created ASC";
 	//echo $query . '<BR>';
 	$result = $mysqli->query($query);
 	if ($result == NULL)

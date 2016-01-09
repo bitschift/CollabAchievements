@@ -30,6 +30,7 @@ if (isset($_REQUEST['logout'])) {
 
 if(isset($_REQUEST['btn-approve']) AND isset($_REQUEST['id'])) {
 	$id = mysqli_real_escape_string($mysqli, $_REQUEST['id']);
+	$comment = mysqli_real_escape_string($mysqli, $_REQUEST['comment']);
 	if ($userrow['userlevel'] > 2){ // OK to approve
 		$query = "UPDATE requests SET status = 1 WHERE id = " . $id;
 		//echo '<br><br><br>' . $query . '<br>';
@@ -51,14 +52,50 @@ if(isset($_REQUEST['btn-approve']) AND isset($_REQUEST['id'])) {
 	
 }
 
-if(isset($_REQUEST['btn-deny']) AND isset($_REQUEST['id'])) {
-	$id = mysqli_real_escape_string($mysqli, $_REQUEST['id']);
+if(isset($_REQUEST['btn-approve']) AND isset($_REQUEST['hash'])) {
+	$hash = mysqli_real_escape_string($mysqli, $_REQUEST['hash']);
 	if ($userrow['userlevel'] > 2){ // OK to approve
-		$query = "UPDATE requests SET status = 2 WHERE id = " . $id;
+		$query = "UPDATE requests SET status = 1 WHERE hash = '" . $hash . "'";
 		//echo '<br><br><br>' . $query . '<br>';
 		$mysqli->query($query);	
 		
-		$query = "SELECT levels.*, requests.requesterid, requests.comment FROM levels INNER JOIN requests ON levels.id = requests.achievementid WHERE requests.id = $id";
+		$query = "SELECT levels.*, requests.requesterid FROM levels INNER JOIN requests ON levels.id = requests.achievementid WHERE requests.hash = '$hash'";
+		//echo '<br><br><br>' . $query . '<br>';
+		$result = $mysqli->query($query);	
+		$row = $result->fetch_assoc();
+		
+		addachievement($mysqli, $row['achievementid'], $row['level'], $row['requesterid']);
+		
+		echo '<h3><BR><BR>All Done!</h3><a href="./home.php">Go Back</a>';
+		exit();
+
+	} else { //Should generate an email someone is poking around
+		echo '';
+	}
+	
+}
+
+if(isset($_REQUEST['btn-deny']) AND isset($_REQUEST['hash'])) {
+	$hash = mysqli_real_escape_string($mysqli, $_REQUEST['hash']);
+	//Decide what to put into Comment
+	$comment = trim(mysqli_real_escape_string($mysqli, $_REQUEST['comment']));
+	$deny_select = trim(mysqli_real_escape_string($mysqli, $_REQUEST['deny_select']));
+	if ($comment == ''){
+		$query = "SELECT * FROM verdicts WHERE id = $deny_select";
+		$result = $mysqli->query($query);
+		$row = $result->fetch_assoc();
+		if ($row['content'] == 'Other')
+			$comment = $row['verdict'] . ': ' . $row['content'] . ' - ' . $comment;
+		else
+			$comment = $row['verdict'] . ': ' . $row['content'];
+		
+	}
+	if ($userrow['userlevel'] > 2){ // OK to approve
+		$query = "UPDATE requests SET status = 2, comment = '$comment' WHERE hash = '" . $hash . "'";
+		//echo '<br><br><br>' . $query . '<br>';
+		$mysqli->query($query);	
+		
+		$query = "SELECT levels.*, requests.requesterid, requests.comment FROM levels INNER JOIN requests ON levels.id = requests.achievementid WHERE requests.hash = '$hash'";
 		//echo '<br><br><br>' . $query . '<br>';
 		$result = $mysqli->query($query);	
 		$row = $result->fetch_assoc();
@@ -74,7 +111,8 @@ if(isset($_REQUEST['btn-deny']) AND isset($_REQUEST['id'])) {
 		$row2['level'] = $level;
 		
 		$row2['comment'] = $row['comment'];
-		
+		if (trim($row2['comment']) == '')
+			$row2['comment'] = 'No comment entered';
 		email_message('Achievement ' . $row2['name']  . ' Denied', $row2['onid'] . '@oregonstate.edu', create_message('./emails/deny.eml', $row2));
 		
 		echo '<h3><BR><BR>All Done!</h3><a href="./home.php">Go Back</a>';
@@ -89,7 +127,7 @@ if(isset($_REQUEST['btn-deny']) AND isset($_REQUEST['id'])) {
 
 if (isset($_REQUEST['reviewhash'])){
 	$hash = mysqli_real_escape_string($mysqli, $_REQUEST['reviewhash']);
-	$query = "SELECT reviews.*, requests.requesterid, requests.achievementid AS levelid, requests.evidence, requests.created, requests.status FROM reviews INNER JOIN requests ON requests.id = reviews.requestid WHERE requests.hash = '$hash' AND reviews.reviewer = " . $userrow['id'];
+	$query = "SELECT reviews.*, requests.requesterid, requests.achievementid AS levelid, requests.evidence, requests.created, requests.status FROM reviews INNER JOIN requests ON requests.id = reviews.requestid WHERE requests.hash = '$hash'";
 	//echo '<br><br><br>' . $query . '<br>';
 	$result = $mysqli->query($query);
 	if ($result->num_rows == 0){
@@ -118,8 +156,24 @@ if (isset($_REQUEST['reviewhash'])){
 			Your reason will be supplied to the faculty approver only.</p>
 			Evidence: <a href='" . $row['evidence'] . "'>" . $row['evidence'] . "</a></div></div>
 			<div class='row'><div class='col-sm-5 col-sm-offset-2'>";
+			//Reviewer Feedback!!!
 			
-			
+			$query = "SELECT reviews.*, requests.hash FROM reviews INNER JOIN requests ON requests.id  = reviews.requestid WHERE requests.hash = '$hash' ORDER BY reviewer ASC";
+			//echo '<br><br><br>' . $query . '<br>';
+			$result = $mysqli->query($query);
+			while ($temprow = $result->fetch_assoc()){
+				if ($temprow['verdict'] == 0){
+					echo $temprow['id'] . ": Not Recorded<BR>";
+				} else {
+					$query = "SELECT * FROM verdicts WHERE id = " . $temprow['verdict'];
+					$newresult = $mysqli->query($query);
+					$verdictrow = $newresult->fetch_assoc();
+					echo $temprow['id'] . ": " . $verdictrow['verdict'] . ': ' . $verdictrow['content'] . '<BR>';
+				}
+				
+			}
+				
+			///
 			$query = "SELECT levels.*, achievementList.info AS achievementinfo, achievementList.name FROM levels INNER JOIN achievementList ON achievementList.id = levels.achievementid WHERE levels.achievementid = " . $achievementrow['achievementid'] . " ORDER BY level ASC";
 			$result = $mysqli->query($query);
 			$achievementrow = $result->fetch_assoc();
@@ -140,6 +194,7 @@ if (isset($_REQUEST['reviewhash'])){
 			
 			echo "</div>
 			
+			
 			<div class='col-sm-3'>
 			<div style='padding:1em;margin:1em;background-color:#f2f2f2;border-radius:10px;'>
 			<form method='post' class='form-group'>
@@ -150,23 +205,16 @@ if (isset($_REQUEST['reviewhash'])){
 			<div style='padding:1em;margin:1em;background-color:#f2f2f2;border-radius:10px;'>
 			<form method='post' class='form-group'>
 			<input type='hidden' name='hash' value='$hash'>
-			<label for='abstain_select'>Why are you abstaining? (Select the best option)</label>
-			<div class='radio'><label><input type='radio' name='abstain_select' value='2' required>I am a friend/relative</label></div>
-			<div class='radio'><label><input type='radio' name='abstain_select' value='3' required>I am not confident in my knowledge of this achievement</label></div>
-			<div class='radio'><label><input type='radio' name='abstain_select' value='4' required>Other</label></div>
-			<br>
-			<input class='form-control' type='submit' value='Abstain' name='btn-abstain'></button></form>
-			</div>
-			
-			<div style='padding:1em;margin:1em;background-color:#f2f2f2;border-radius:10px;'>
-			<form method='post' class='form-group'>
-			<input type='hidden' name='hash' value='$hash'>
-			<label for='deny_select'>Why are you denying? (Select the best option)</label>
-			<div class='radio'><label><input type='radio' name='deny_select' value='5' required>The supplied evidence is incomplete</label></div>
-			<div class='radio'><label><input type='radio' name='deny_select' value='6' required>I don't think the supplied evidence was done by this person</label></div>
-			<div class='radio'><label><input type='radio' name='deny_select' value='7' required>This may have been completed, but the <b>quality of the work</b> is marginal</label></div>
-			<div class='radio'><label><input type='radio' name='deny_select' value='8' required>Other</label></div>
-			<br>
+			<label for='deny_select'>Why are you denying? (Select the best option)</label>";
+					
+			$query = "SELECT * FROM verdicts WHERE verdict = 'Deny'";
+			$result = $mysqli->query($query);
+			while ($row = $result->fetch_assoc())
+				echo "<div class='radio'><label><input type='radio' name='deny_select' value='".$row['id']."' required>".$row['content']."</label></div>";
+
+			echo "<br>
+			<label for='comment'>Comment:</label>
+			<textarea class='form-control' rows='3' id='comment' name='comment'></textarea>
 			<input class='form-control' type='submit' value='Deny' name='btn-deny'></button></form>
 			</div></div></div>
 			";
