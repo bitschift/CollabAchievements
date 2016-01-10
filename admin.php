@@ -43,7 +43,8 @@ $achRes = $mysqli->query("SELECT * FROM achievementList");
 $count = $achRes->num_rows;
 
 echo '<form method="post">';
-echo '<select name="achievement">';
+echo '<p>Select an achievement to modify: </p><br>
+	<select name="achievement">';
 for ($y=0; $y<$count; $y++) {
 	$achRow = $achRes->fetch_array(MYSQLI_ASSOC);
 	echo '<option value="', $achRow['id'], '">', $achRow['name'], '</option>';
@@ -51,6 +52,10 @@ for ($y=0; $y<$count; $y++) {
 echo '</select><br><br>';
 echo '<input type="submit" name="btn-request"></button></form></div>';
 
+echo '<form method="post">';
+echo '<p>Select a user to modify: </p><br>
+	<select name="user">';
+for 
 
 echo '</body>';
 ?>

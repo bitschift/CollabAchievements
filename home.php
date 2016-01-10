@@ -1,7 +1,6 @@
 <?php
 include_once 'header.php';
 
-
 echo '<body>';
 
 if (isset($_REQUEST['btn-signup'])) {
@@ -9,6 +8,12 @@ if (isset($_REQUEST['btn-signup'])) {
 	$lastname = trim(mysqli_real_escape_string($mysqli, $_REQUEST['lastname']));
 	$username = trim(mysqli_real_escape_string($mysqli, $_REQUEST['username']));
 	$onid = phpCAS::getUser();
+	
+	$data = array();
+	$data['firstname'] = $firstname;
+	$data['lastname'] = $lastname;
+	$data['username'] = $username;
+	$data['onid'] = $onid;
 	
 	if (isset($_REQUEST['firstname']) AND isset($_REQUEST['lastname']) AND isset($_REQUEST['username'])){
 		$mysqli->query("INSERT INTO users(firstname, lastname, username, onid, userlevel, hash) VALUES('$firstname', '$lastname', '$username', '$onid', 0,'".randomhash()."')");
@@ -20,6 +25,48 @@ if (isset($_REQUEST['btn-signup'])) {
 			<h1>Successful Authentication!</h1>
 			<p>the user\'s login is <b>' . phpCAS::getUser() . '</b>.</p>';
 		echo '<meta http-equiv="refresh" content="0; url=home.php" />';
+	}
+	
+	if(isset($_REQUEST['username'])) {
+		$pattern['a'] = '/[a]/'; $replace['a'] = '[a A @]';
+		$pattern['b'] = '/[b]/'; $replace['b'] = '[b B I3 l3 i3]';
+		$pattern['c'] = '/[c]/'; $replace['c'] = '(?:[c C (]|[k K])';
+		$pattern['d'] = '/[d]/'; $replace['d'] = '[d D]';
+		$pattern['e'] = '/[e]/'; $replace['e'] = '[e E 3]';
+		$pattern['f'] = '/[f]/'; $replace['f'] = '(?:[f F]|[ph pH Ph PH])';
+		$pattern['g'] = '/[g]/'; $replace['g'] = '[g G 6]';
+		$pattern['h'] = '/[h]/'; $replace['h'] = '[h H]';
+		$pattern['i'] = '/[i]/'; $replace['i'] = '[i I l ! 1]';
+		$pattern['j'] = '/[j]/'; $replace['j'] = '[j J]';
+		$pattern['k'] = '/[k]/'; $replace['k'] = '(?:[c C (]|[k K])';
+		$pattern['l'] = '/[l]/'; $replace['l'] = '[l L 1 ! i]';
+		$pattern['m'] = '/[m]/'; $replace['m'] = '[m M]';
+		$pattern['n'] = '/[n]/'; $replace['n'] = '[n N]';
+		$pattern['o'] = '/[o]/'; $replace['o'] = '[o O 0]';
+		$pattern['p'] = '/[p]/'; $replace['p'] = '[p P]';
+		$pattern['q'] = '/[q]/'; $replace['q'] = '[q Q 9]';
+		$pattern['r'] = '/[r]/'; $replace['r'] = '[r R]';
+		$pattern['s'] = '/[s]/'; $replace['s'] = '[s S $ 5]';
+		$pattern['t'] = '/[t]/'; $replace['t'] = '[t T 7]';
+		$pattern['u'] = '/[u]/'; $replace['u'] = '[u U v V]';
+		$pattern['v'] = '/[v]/'; $replace['v'] = '[v V u U]';
+		$pattern['w'] = '/[w]/'; $replace['w'] = '[w W vv VV]';
+		$pattern['x'] = '/[x]/'; $replace['x'] = '[x X]';
+		$pattern['y'] = '/[y]/'; $replace['y'] = '[y Y]';
+		$pattern['z'] = '/[z]/'; $replace['z'] = '[z Z 2]';
+		$word = str_split(strtolower($_REQUEST['username']));
+		$i=0;
+		while($i < count($word)) {
+			if(!is_numeric($word[$i])) {
+				if($word[$i] != ' ' || count($word[$i]) < '1') {
+					$word[$i] = preg_replace($pattern[$word[$i]], $replace[$word[$i]], $word[$i]);
+				}
+			}
+			$i++;
+		}
+		if(is_profanity($word) == 1) {
+			email_message('Username Review Request', 'heer@oregonstate.edu', create_message('./emails/profanity.eml', $data);
+		}
 	}
 }
 
