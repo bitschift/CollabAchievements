@@ -65,7 +65,7 @@ if (isset($_REQUEST['btn-signup'])) {
 			$i++;
 		}
 		if(is_profanity($word) == 1) {
-			email_message('Username Review Request', 'heer@oregonstate.edu', create_message('./emails/profanity.eml', $data);
+			email_message('Username Review Request', 'heer@oregonstate.edu', create_message('./emails/profanity.eml', $data));
 		}
 	}
 }
