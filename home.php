@@ -101,7 +101,7 @@ if(isset($_REQUEST['btn-request'])) {
 		$userrow['name'] = $row['name'];
 		$userrow['level'] = $level;
 		
-		$query = "SELECT requests.*, levels.level FROM requests INNER JOIN levels ON levels.id = requests.achievementid WHERE requesterid = '$userid' AND achievementid = '$reqAch' AND status = 0";
+		$query = "SELECT requests.*, levels.level FROM requests INNER JOIN levels ON levels.id = requests.achievementid WHERE requests.requesterid = '$userid' AND requests.achievementid = '$reqAch' AND requests.status = 0";
 		$result = $mysqli->query($query);
 		if ($result->num_rows > 0) {//Already Under Review
 			$row = $result->fetch_assoc();
@@ -238,7 +238,7 @@ if (empty($myachievements)){
 <form method="post" class="form-group"><label for="requestachievement">Request achievement:</label>
 <select required name="requestachievement" id="requestachievement" class="form-control" onchange="loadrequestlevels()"><option value="">Choose ...</option>
 <?php
-		$achieve = $mysqli->query("SELECT * FROM achievementList");
+	$achieve = $mysqli->query("SELECT * FROM achievementList ORDER BY name");
 	$ach_length = $achieve->num_rows;
 
 	$empl = $mysqli->query("SELECT * FROM users");
@@ -286,7 +286,7 @@ if (empty($myachievements)){
 if ($userrow['userlevel'] > 1){
 	echo "<div class='row'><div style='padding-top:3%;' class='col-sm-8 col-sm-offset-2'><h3>Requests to Review</h3></div></div>";
 	echo "<div class='row'><div class='col-sm-8 col-sm-offset-2' id='myreviews'>";
-	$requests = requestslist($mysqli, 'heer');
+	$requests = requestslist($mysqli, $onid);
 	if (empty($requests)){
 		echo '<h2>You do not have any open requests to review</h2>';
 	} else {

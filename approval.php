@@ -127,23 +127,16 @@ if(isset($_REQUEST['btn-deny']) AND isset($_REQUEST['hash'])) {
 
 if (isset($_REQUEST['reviewhash'])){
 	$hash = mysqli_real_escape_string($mysqli, $_REQUEST['reviewhash']);
-	$query = "SELECT reviews.*, requests.requesterid, requests.achievementid AS levelid, requests.evidence, requests.created, requests.status FROM reviews INNER JOIN requests ON requests.id = reviews.requestid WHERE requests.hash = '$hash'";
-	//echo '<br><br><br>' . $query . '<br>';
-	$result = $mysqli->query($query);
-	if ($result->num_rows == 0){
-		echo "<div class='row'><div style='padding-top:5em;' class='col-sm-8 col-sm-offset-2'><h3>You are not assigned to review this request.</h3></div></div>";
-	} else {
+	 if ($userrow['userlevel'] > 2) {
 		echo "<div class='row'><div style='padding-top:5em;' class='col-sm-8 col-sm-offset-2'><h3>About to process hash: $hash</h3></div></div>";
-		$row = $result->fetch_assoc();
-		if ($row['status'] != 0) { //Already completed. No work reviewing needed
-			echo "<div class='row'><div style='padding-top:5em;' class='col-sm-8 col-sm-offset-2'><h3>This request has already been processed and a verdict rendered. Thank you for your assistance!</h3></div></div>";
-		} else if ($row['verdict'] != 0){
-			echo "<div class='row'><div style='padding-top:5em;' class='col-sm-8 col-sm-offset-2'><h3>You have already voted on this request. If you need to change your vote, please email and administrator.</h3></div></div>"; 
-		} else {
+			$query = "SELECT * FROM requests WHERE hash = '$hash'";
+			$result = $mysqli->query($query);
+			$row = $result->fetch_assoc();
+
 			$query = "SELECT * FROM users WHERE id = " . $row['requesterid'];
 			$result = $mysqli->query($query);
 			$requesterrow = $result->fetch_assoc();
-			$query = "SELECT levels.*, achievementList.info AS achievementinfo, achievementList.name FROM levels INNER JOIN achievementList ON achievementList.id = levels.achievementid WHERE levels.id = " . $row['levelid'] . " ORDER BY level ASC";
+			$query = "SELECT levels.*, achievementList.info AS achievementinfo, achievementList.name FROM levels INNER JOIN achievementList ON achievementList.id = levels.achievementid WHERE levels.id = " . $row['achievementid'] . " ORDER BY level ASC";
 			//echo '<br><br><br>' . $query . '<br>';
 			$result = $mysqli->query($query);
 			$achievementrow = $result->fetch_assoc();
@@ -179,12 +172,12 @@ if (isset($_REQUEST['reviewhash'])){
 			$achievementrow = $result->fetch_assoc();
 			
 			echo '<h3>' . $achievementrow['name'] . '</h3><p>' . $achievementrow['achievementinfo'] . '</p>';
-			if ($achievementrow['id'] == $row['levelid'])
+			if ($achievementrow['id'] == $row['achievementid'])
 				echo '<strong>Level: '.$achievementrow['level'].'<BR>' . nl2br($achievementrow['info']) . '</strong><BR>';
 			else
 				echo 'Level: '.$achievementrow['level'].'<BR>' . nl2br($achievementrow['info']) . '<BR>';
 			while ($achievementrow = $result->fetch_assoc()){
-				if ($achievementrow['level'] == $row['levelid'])
+				if ($achievementrow['id'] == $row['achievementid'])
 					echo '<strong>Level: '.$achievementrow['level'].'<BR>' . nl2br($achievementrow['info']) . '</strong><BR>';
 				else
 					echo 'Level: '.$achievementrow['level'].'<BR>' . nl2br($achievementrow['info']) . '<BR>';
@@ -218,7 +211,9 @@ if (isset($_REQUEST['reviewhash'])){
 			<input class='form-control' type='submit' value='Deny' name='btn-deny'></button></form>
 			</div></div></div>
 			";
-		}
+		
+	} else { //Should generate an email someone is poking around
+		echo '';
 	}
 
 } else if (isset($_REQUEST['requesthash'])){
