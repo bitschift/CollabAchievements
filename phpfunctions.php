@@ -1,22 +1,5 @@
 <?php
 /**************************************
-is_profanity($word)
-
-uses Google's profanity API
-***************************************/
-function is_profanity($q,$json=0) {
-	$wordlist = file("./badwords.txt");
-	for ($i=0;$i<count($wordlist);$i++) {
-		$trimmed = trim($wordlist[$i]);
-		$f = "/{$trimmed}/i";
-		if (preg_match($f, $q)) {
-			return 1;
-		}
-	}
-	return 0;
-}
-
-/**************************************
 htmlallentities($str)
 
 
@@ -103,6 +86,26 @@ function achievementlist($mysqli, $onid){
 		$returnvalue[] = $row; 
 	return $returnvalue;
 }
+
+/**************************************
+mycurrentrequestslist($mysqli, $onid)
+
+***************************************/
+function mycurrentrequestslist($mysqli, $onid){
+	$query = "SELECT * FROM users WHERE onid = '$onid'";
+	$result = $mysqli->query($query);
+	if ($result == NULL)
+		return NULL;
+	$userrow = $result->fetch_array();
+	$query = "SELECT levels.level, levels.image, achievementList.name FROM requests INNER JOIN levels ON levels.id = requests.achievementid INNER JOIN achievementList ON levels.achievementid = achievementList.id WHERE requests.requesterid = " . $userrow['id'] ." AND status = 0 ORDER BY achievementList.name ASC, levels.level ASC";
+	//echo $query . '<BR>';
+	$result = $mysqli->query($query);
+	$returnvalue = Array();
+	while($row = $result->fetch_assoc())
+		$returnvalue[] = $row; 
+	return $returnvalue;
+}
+
 
 /**************************************
 requestslist($mysqli, $onid)

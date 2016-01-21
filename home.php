@@ -1,6 +1,7 @@
 <?php
 include_once 'header.php';
 
+
 echo '<body>';
 
 if (isset($_REQUEST['btn-signup'])) {
@@ -8,12 +9,6 @@ if (isset($_REQUEST['btn-signup'])) {
 	$lastname = trim(mysqli_real_escape_string($mysqli, $_REQUEST['lastname']));
 	$username = trim(mysqli_real_escape_string($mysqli, $_REQUEST['username']));
 	$onid = phpCAS::getUser();
-	
-	$data = array();
-	$data['firstname'] = $firstname;
-	$data['lastname'] = $lastname;
-	$data['username'] = $username;
-	$data['onid'] = $onid;
 	
 	if (isset($_REQUEST['firstname']) AND isset($_REQUEST['lastname']) AND isset($_REQUEST['username'])){
 		$mysqli->query("INSERT INTO users(firstname, lastname, username, onid, userlevel, hash) VALUES('$firstname', '$lastname', '$username', '$onid', 0,'".randomhash()."')");
@@ -25,48 +20,6 @@ if (isset($_REQUEST['btn-signup'])) {
 			<h1>Successful Authentication!</h1>
 			<p>the user\'s login is <b>' . phpCAS::getUser() . '</b>.</p>';
 		echo '<meta http-equiv="refresh" content="0; url=home.php" />';
-	}
-	
-	if(isset($_REQUEST['username'])) {
-		$pattern['a'] = '/[a]/'; $replace['a'] = '[a A @]';
-		$pattern['b'] = '/[b]/'; $replace['b'] = '[b B I3 l3 i3]';
-		$pattern['c'] = '/[c]/'; $replace['c'] = '(?:[c C (]|[k K])';
-		$pattern['d'] = '/[d]/'; $replace['d'] = '[d D]';
-		$pattern['e'] = '/[e]/'; $replace['e'] = '[e E 3]';
-		$pattern['f'] = '/[f]/'; $replace['f'] = '(?:[f F]|[ph pH Ph PH])';
-		$pattern['g'] = '/[g]/'; $replace['g'] = '[g G 6]';
-		$pattern['h'] = '/[h]/'; $replace['h'] = '[h H]';
-		$pattern['i'] = '/[i]/'; $replace['i'] = '[i I l ! 1]';
-		$pattern['j'] = '/[j]/'; $replace['j'] = '[j J]';
-		$pattern['k'] = '/[k]/'; $replace['k'] = '(?:[c C (]|[k K])';
-		$pattern['l'] = '/[l]/'; $replace['l'] = '[l L 1 ! i]';
-		$pattern['m'] = '/[m]/'; $replace['m'] = '[m M]';
-		$pattern['n'] = '/[n]/'; $replace['n'] = '[n N]';
-		$pattern['o'] = '/[o]/'; $replace['o'] = '[o O 0]';
-		$pattern['p'] = '/[p]/'; $replace['p'] = '[p P]';
-		$pattern['q'] = '/[q]/'; $replace['q'] = '[q Q 9]';
-		$pattern['r'] = '/[r]/'; $replace['r'] = '[r R]';
-		$pattern['s'] = '/[s]/'; $replace['s'] = '[s S $ 5]';
-		$pattern['t'] = '/[t]/'; $replace['t'] = '[t T 7]';
-		$pattern['u'] = '/[u]/'; $replace['u'] = '[u U v V]';
-		$pattern['v'] = '/[v]/'; $replace['v'] = '[v V u U]';
-		$pattern['w'] = '/[w]/'; $replace['w'] = '[w W vv VV]';
-		$pattern['x'] = '/[x]/'; $replace['x'] = '[x X]';
-		$pattern['y'] = '/[y]/'; $replace['y'] = '[y Y]';
-		$pattern['z'] = '/[z]/'; $replace['z'] = '[z Z 2]';
-		$word = str_split(strtolower($_REQUEST['username']));
-		$i=0;
-		while($i < count($word)) {
-			if(!is_numeric($word[$i])) {
-				if($word[$i] != ' ' || count($word[$i]) < '1') {
-					$word[$i] = preg_replace($pattern[$word[$i]], $replace[$word[$i]], $word[$i]);
-				}
-			}
-			$i++;
-		}
-		if(is_profanity($word) == 1) {
-			email_message('Username Review Request', 'heer@oregonstate.edu', create_message('./emails/profanity.eml', $data));
-		}
 	}
 }
 
@@ -101,7 +54,7 @@ if(isset($_REQUEST['btn-request'])) {
 		$userrow['name'] = $row['name'];
 		$userrow['level'] = $level;
 		
-		$query = "SELECT requests.*, levels.level FROM requests INNER JOIN levels ON levels.id = requests.achievementid WHERE requests.requesterid = '$userid' AND requests.achievementid = '$reqAch' AND requests.status = 0";
+		$query = "SELECT requests.*, levels.level FROM requests INNER JOIN levels ON levels.id = requests.achievementid WHERE requests.requesterid = '$userid' AND requests.achievementid = $reqAch AND requests.status = 0";
 		$result = $mysqli->query($query);
 		if ($result->num_rows > 0) {//Already Under Review
 			$row = $result->fetch_assoc();
@@ -233,12 +186,19 @@ if (empty($myachievements)){
 		echo '<div class="col-sm-2 thumbnail" style="border-style:none;"><img class="img-responsive" style="width:100%;display:block;" src="./img/'.$achievement['image'].'" title="'.$achievement['name'].' - Level '.$achievement['level'].'"></div>';
 	}
 }
+$myachievements = mycurrentrequestslist($mysqli, $onid);
+if (!empty($myachievements)){
+	foreach ($myachievements AS $achievement){
+		echo '<div class="col-sm-2 thumbnail" style="border-style:none;"><img class="img-responsive" style="width:100%;display:block;opacity: 0.4;
+    filter: alpha(opacity=40);" src="./img/'.$achievement['image'].'" title="IN PROCESS: '.$achievement['name'].' - Level '.$achievement['level'].'"></div>';
+	}
+}
 ?>
 </div><div style="margin-top:5em;background-color:#f2f2f2;border-radius:10px;" class='col-sm-2'>
 <form method="post" class="form-group"><label for="requestachievement">Request achievement:</label>
 <select required name="requestachievement" id="requestachievement" class="form-control" onchange="loadrequestlevels()"><option value="">Choose ...</option>
 <?php
-	$achieve = $mysqli->query("SELECT * FROM achievementList ORDER BY name");
+	$achieve = $mysqli->query("SELECT * FROM achievementList");
 	$ach_length = $achieve->num_rows;
 
 	$empl = $mysqli->query("SELECT * FROM users");
@@ -301,6 +261,7 @@ if ($userrow['userlevel'] > 1){
 <?php
 if ($userrow['userlevel'] > 2){
 	echo "<div class='row'><div style='padding-top:3em;' class='col-sm-8 col-sm-offset-2' ><h3>Admin Tasks</h3></div></div>";
+	echo "<div class='row'><div style='padding-top:3em;' class='col-sm-8 col-sm-offset-2' ><h4><a href='./admin/userlist.php'>User List</a> --- <a href='./admin/messageusers.php'>Message Users</a></h4></div></div>";
 	echo "<div class='row'><div style='padding-top:3em;' class='col-sm-6 col-sm-offset-2' >";
 	
 	$approveids = Array();

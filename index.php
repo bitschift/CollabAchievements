@@ -1,22 +1,6 @@
 <?php
-include_once 'dbconnect.php';
-include_once 'phpfunctions.php';
+include_once 'header.php';
 
-echo '<!DOCTYPE html>
-	<html>
-	<head>
-	<title>Collaboratory Achievement Management</title>
-	</head>';
-?>
-
-<!-- Bootstrap -->
-<link href="./css/bootstrap.min.css" rel="stylesheet">
-<!-- jQuery -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<!-- Include all compiled plugins -->
-<script src="./js/bootstrap.min.js"></script>
-
-<?php
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -25,7 +9,6 @@ $termBegin = '2016-01-03';
 $termEnd = '2016-03-10';
 $termName = 'Winter 2016';
 ?>
-
 <nav class="navbar navbar-inverse navbar-fixed-top">
 	<a class="navbar-brand" href="http://www.oregonstate.edu">Oregon State University</a>
 	<div style="padding-right:1%;">
