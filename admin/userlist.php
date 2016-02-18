@@ -1,4 +1,9 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+
 include_once '../casconnect.php';
 include_once '../dbconnect.php';
 include_once '../phpfunctions.php';
@@ -35,8 +40,26 @@ echo '<body>';
 if (isset($_REQUEST['btn-signup'])) {
 }
 
+?>
+
+<nav class="navbar navbar-inverse navbar-fixed-top">
+		<a class="navbar-brand" href="http://www.oregonstate.edu">Oregon State University</a>
+		<div style="padding-right:1%;">
+		<?php
+		if (isset($onid)){
+			echo '<div class="navbar-brand pull-right" style="padding-right:1%;"><span class="glyphicon glyphicon-user"></span>' . $onid . ' - <a href="' . $_SERVER['PHP_SELF'] . '?logout">Logout</a></div>';
+		} else {
+			echo '<a href="' . $_SERVER['PHP_SELF'] . '?login"><button type="button" class="btn btn-default navbar-btn pull-right">Sign in</button></a>';
+		}
+		?>
+		</div>
+	</nav>
+
+<?php
+
+
 if ($userrow['userlevel'] > 2){
-	echo '<div class="row"><div style="padding-top:5em;" class="col-sm-10 col-sm-offset-1"><div class="table-responsive">';
+	echo '<div class="row" style="padding-top:2em;"><div style="padding-top:5em;" class="col-sm-10 col-sm-offset-1"><div class="table-responsive">';
 	
 	
 //	$tabledata = '<table id="table-custom-sort" data-sort-name="price" data-sort-order="desc" class="table table-condensed sortable" style="border-collapse:collapse;" style="border-right:none;border-bottom:none;"><thead><tr><th data-field="name" data-sortable="true">Task Name &#x25B4&#x25BE</th><th data-field="due" data-sortable="true">Due Date &#x25B4&#x25BE</th><th data-field="completed" data-sortable="true">Completed Date &#x25B4&#x25BE</th><th data-field="assigned" data-sortable="true">Date Assigned &#x25B4&#x25BE</th><th data-field="owner" data-sortable="true">Owner &#x25B4&#x25BE</th><th data-field="status" data-sortable="true">Status &#x25B4&#x25BE</th></tr></thead><tbody>';

@@ -56,8 +56,25 @@ if (isset($_REQUEST['btn-test'])) {
 	email_message($subject, $userrow['onid']. '@oregonstate.edu', $body);
 }
 
+?>
+
+<nav class="navbar navbar-inverse navbar-fixed-top">
+		<a class="navbar-brand" href="http://www.oregonstate.edu">Oregon State University</a>
+		<div style="padding-right:1%;">
+		<?php
+		if (isset($onid)){
+			echo '<div class="navbar-brand pull-right" style="padding-right:1%;"><span class="glyphicon glyphicon-user"></span>' . $onid . ' - <a href="' . $_SERVER['PHP_SELF'] . '?logout">Logout</a></div>';
+		} else {
+			echo '<a href="' . $_SERVER['PHP_SELF'] . '?login"><button type="button" class="btn btn-default navbar-btn pull-right">Sign in</button></a>';
+		}
+		?>
+		</div>
+	</nav>
+
+<?php
+
 if ($userrow['userlevel'] > 2){
-	echo '<div class="row"><div style="padding-top:5em;" class="col-sm-10 col-sm-offset-1">';
+	echo '<div class="row" style="padding-top:2em;"><div style="padding-top:5em;" class="col-sm-10 col-sm-offset-1">';
 	echo '<form action="./messageusers.php" method="post">';
 	echo 'Subject: <input type="text" name="subject" id="subject" value="' . (isset($subject) ? $subject : ''). '" title="Please enter message subject."><BR>';
 	echo 'User Level: <select name="userlevel" title="Please select group to send to."><option value="0">New</option><option value="1">Normal</option><option value="2">Reviewers</option><option value="3">Approvers</option></select><BR>';
