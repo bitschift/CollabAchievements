@@ -1,14 +1,32 @@
 <?php
 include_once 'header.php';
 
-
 echo '<body>';
+
+if ($userrow['userlevel'] > 1) {
+	echo '<div style="margin-top:5em;background-color:#f2f2f2;border-radius:center:10px;" class="col-sm-2">
+		<h2>Clocking</h2>
+		<form class="form-group">
+		<p>I am in room<p> 
+		<select id="room" class="form-control">
+		<option value="1110">1110</option>
+		<option value="1115">1115</option>
+		</select>
+		<input type="hidden" id="id" value=', $userrow['id'], '><br><button onclick="setEmpStatus()">Update</button>
+		<button onclick="empLogout()">Logout</button></form></div>';	
+}
 
 if (isset($_REQUEST['btn-signup'])) {
 	$firstname = trim(mysqli_real_escape_string($mysqli, $_REQUEST['firstname']));
 	$lastname = trim(mysqli_real_escape_string($mysqli, $_REQUEST['lastname']));
 	$username = trim(mysqli_real_escape_string($mysqli, $_REQUEST['username']));
 	$onid = phpCAS::getUser();
+	
+	$data = array();
+	$data['firstname'] = $firstname;
+	$data['lastname'] = $lastname;
+	$data['username'] = $username;
+	$data['onid'] = $onid;
 	
 	if (isset($_REQUEST['firstname']) AND isset($_REQUEST['lastname']) AND isset($_REQUEST['username'])){
 		$mysqli->query("INSERT INTO users(firstname, lastname, username, onid, userlevel, hash) VALUES('$firstname', '$lastname', '$username', '$onid', 0,'".randomhash()."')");
@@ -20,6 +38,48 @@ if (isset($_REQUEST['btn-signup'])) {
 			<h1>Successful Authentication!</h1>
 			<p>the user\'s login is <b>' . phpCAS::getUser() . '</b>.</p>';
 		echo '<meta http-equiv="refresh" content="0; url=home.php" />';
+	}
+	
+	if(isset($_REQUEST['username'])) {
+		$pattern['a'] = '/[a]/'; $replace['a'] = '[a A @]';
+		$pattern['b'] = '/[b]/'; $replace['b'] = '[b B I3 l3 i3]';
+		$pattern['c'] = '/[c]/'; $replace['c'] = '(?:[c C (]|[k K])';
+		$pattern['d'] = '/[d]/'; $replace['d'] = '[d D]';
+		$pattern['e'] = '/[e]/'; $replace['e'] = '[e E 3]';
+		$pattern['f'] = '/[f]/'; $replace['f'] = '(?:[f F]|[ph pH Ph PH])';
+		$pattern['g'] = '/[g]/'; $replace['g'] = '[g G 6]';
+		$pattern['h'] = '/[h]/'; $replace['h'] = '[h H]';
+		$pattern['i'] = '/[i]/'; $replace['i'] = '[i I l ! 1]';
+		$pattern['j'] = '/[j]/'; $replace['j'] = '[j J]';
+		$pattern['k'] = '/[k]/'; $replace['k'] = '(?:[c C (]|[k K])';
+		$pattern['l'] = '/[l]/'; $replace['l'] = '[l L 1 ! i]';
+		$pattern['m'] = '/[m]/'; $replace['m'] = '[m M]';
+		$pattern['n'] = '/[n]/'; $replace['n'] = '[n N]';
+		$pattern['o'] = '/[o]/'; $replace['o'] = '[o O 0]';
+		$pattern['p'] = '/[p]/'; $replace['p'] = '[p P]';
+		$pattern['q'] = '/[q]/'; $replace['q'] = '[q Q 9]';
+		$pattern['r'] = '/[r]/'; $replace['r'] = '[r R]';
+		$pattern['s'] = '/[s]/'; $replace['s'] = '[s S $ 5]';
+		$pattern['t'] = '/[t]/'; $replace['t'] = '[t T 7]';
+		$pattern['u'] = '/[u]/'; $replace['u'] = '[u U v V]';
+		$pattern['v'] = '/[v]/'; $replace['v'] = '[v V u U]';
+		$pattern['w'] = '/[w]/'; $replace['w'] = '[w W vv VV]';
+		$pattern['x'] = '/[x]/'; $replace['x'] = '[x X]';
+		$pattern['y'] = '/[y]/'; $replace['y'] = '[y Y]';
+		$pattern['z'] = '/[z]/'; $replace['z'] = '[z Z 2]';
+		$word = str_split(strtolower($_REQUEST['username']));
+		$i=0;
+		while($i < count($word)) {
+			if(!is_numeric($word[$i])) {
+				if($word[$i] != ' ' || count($word[$i]) < '1') {
+					$word[$i] = preg_replace($pattern[$word[$i]], $replace[$word[$i]], $word[$i]);
+				}
+			}
+			$i++;
+		}
+		if(is_profanity($word) == 1) {
+			email_message('Username Review Request', 'heer@oregonstate.edu', create_message('./emails/profanity.eml', $data));
+		}
 	}
 }
 
@@ -54,7 +114,7 @@ if(isset($_REQUEST['btn-request'])) {
 		$userrow['name'] = $row['name'];
 		$userrow['level'] = $level;
 		
-		$query = "SELECT requests.*, levels.level FROM requests INNER JOIN levels ON levels.id = requests.achievementid WHERE requests.requesterid = '$userid' AND requests.achievementid = $reqAch AND requests.status = 0";
+		$query = "SELECT requests.*, levels.level FROM requests INNER JOIN levels ON levels.id = requests.achievementid WHERE requests.requesterid = '$userid' AND requests.achievementid = '$reqAch' AND requests.status = 0";
 		$result = $mysqli->query($query);
 		if ($result->num_rows > 0) {//Already Under Review
 			$row = $result->fetch_assoc();
@@ -131,7 +191,7 @@ if(isset($_REQUEST['btn-endorse'])) { //This is to be reworked/removed soon
 		<div style="padding-right:1%;">
 		<?php
 		if (isset($onid)){
-			echo '<div class="navbar-brand pull-right" style="padding-right:1%;"><span class="glyphicon glyphicon-user"></span>' . $onid . ' - <a href="' . $_SERVER['PHP_SELF'] . '?logout">Logout</a></div>';
+			echo '<div class="navbar-brand pull-right" style="padding-right:1%;"><span class="glyphicon glyphicon-user"></span> ' . $onid . ' - <a href="' . $_SERVER['PHP_SELF'] . '?logout">Logout</a> - <a href="profile.php">Edit Profile</a></div>';
 		} else {
 			echo '<a href="' . $_SERVER['PHP_SELF'] . '?login"><button type="button" class="btn btn-default navbar-btn pull-right">Sign in</button></a>';
 		}
@@ -198,7 +258,7 @@ if (!empty($myachievements)){
 <form method="post" class="form-group"><label for="requestachievement">Request achievement:</label>
 <select required name="requestachievement" id="requestachievement" class="form-control" onchange="loadrequestlevels()"><option value="">Choose ...</option>
 <?php
-	$achieve = $mysqli->query("SELECT * FROM achievementList");
+	$achieve = $mysqli->query("SELECT * FROM achievementList ORDER BY name");
 	$ach_length = $achieve->num_rows;
 
 	$empl = $mysqli->query("SELECT * FROM users");
@@ -393,6 +453,38 @@ if ($userrow['userlevel'] > 2){
 			{
 			$('#givelevel').html(result);
 			loadgiveachievementinfo();
+			}
+		});
+	}
+</script>
+
+<script>
+	function setEmpStatus() {
+		room = $('#room').val();
+		id = $('#id').val();
+		$.ajax({
+			type: 'GET',
+			url: './ajax/loadlevels.php',
+			dataType: 'html',
+			data: { room: room,
+		   			id: id	},
+			success: function(result) {
+				$('#empstatus').html(result);
+			}
+		});
+	}
+</script>
+
+<script>
+	function empLogout() {
+		id = $('#id').val();
+		$.ajax({
+			type: 'GET',
+			url: './ajax/loadlevels.php',
+			dataType: 'html',
+			data: {id: id },
+			success: function(result) {
+				$('#empstatus').html(result);
 			}
 		});
 	}

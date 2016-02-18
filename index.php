@@ -1,6 +1,22 @@
 <?php
-include_once 'header.php';
+include_once 'dbconnect.php';
+include_once 'phpfunctions.php';
 
+echo '<!DOCTYPE html>
+	<html>
+	<head>
+	<title>Collaboratory Achievement Management</title>
+	</head>';
+?>
+
+<!-- Bootstrap -->
+<link href="./css/bootstrap.min.css" rel="stylesheet">
+<!-- jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<!-- Include all compiled plugins -->
+<script src="./js/bootstrap.min.js"></script>
+
+<?php
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -9,6 +25,7 @@ $termBegin = '2016-01-03';
 $termEnd = '2016-03-10';
 $termName = 'Winter 2016';
 ?>
+
 <nav class="navbar navbar-inverse navbar-fixed-top">
 	<a class="navbar-brand" href="http://www.oregonstate.edu">Oregon State University</a>
 	<div style="padding-right:1%;">
@@ -21,14 +38,18 @@ $termName = 'Winter 2016';
 </div></div>
 <div class='row'><div class='col-sm-4 col-sm-offset-2'>
 <p>
-The School of Electrical Engineering and Computer Science at Oregon State University is initiating a new program to create more hands-on learning opportunities for students. The Mastery Challenge program [make this a link to webpage] is based on a concept called gamification, which uses elements of game playing such as leader boards and badges, to motivate participants to gain new abilities such as 3D modeling and Python programming. 
-“The program is designed to help students apply the knowledge they learn in classes to practical skills they will need for jobs when they graduate,” said Don Heer, instructor of electrical and computer engineering. </p>
-<p>Experiential learning is a focus for Heer who has also created the TekBots program which integrates course content with building a robot, and the CreateIT Collaboratory for students to work with outside clients to create prototypes.</p>
-<p>To participate, students login to the Mastery Challenge website with their university account to see the list of challenges for which they can earn achievements. Participants can work on their own, or get help by contacting students who already have that achievement. Prizes will be awarded to students with the highest number of achievements each term. Helping other participants is another way for students to earn achievements.</p>
-Peers also participate in the evaluation process. To earn an achievement, a participant must demonstrate their ability by uploading a video or document to the website for review. Students who already have that achievement can recommend to Heer if the application should be accepted or denied. Heer then makes the final decision.</p>
-<p>The Mastery Challenge program is open to anyone at Oregon State — students from other majors and faculty and staff can participate. Heer is starting with abilities in electrical engineering and computer science, but his vision is that the program will expand across the university, so students can earn abilities in a wide variety of disciplines.</p>
-Questions about the program can be directed to Don Heer. 
+Welcome to the Mastery Challenge, a program designed to  showcase your abilities and challenge you to learn something new. 
+To begin log in above. 
+<ul><li>Login using your Oregon State University ONID account. Currently, only OSU students or employees can participate.
+<li>First time users will need to create an account including a username of your choice.  
+<li>Choose from a wide variety of achievements to start working on. You can choose several first level achievements to show your broad knowledge and skills, or dive deep into one achievement and reach its highest level. 
+<li>When you feel you have mastered a level of an achievement, make a short video about it and submit it for review. Your peers will look over your submission and recommend a decision to the Mastery Challenge Gurus. 
+<li>Each term we will have prizes for the most levels achieved in a term and for various other challenges each term!
+<ul></p>
 
+<h2>Winter 2016: $150 Cash Prize to the most achievements this term</h2>
+<h2>Winter 2016: $150 Cash Prize for the most level 2 and higher achievements this term</h2>
+<h2>Winter 2016: If you earn even one achievement this term, you will be entered into a drawing for a $50 prize.</h2>
 </div>
 
 <div class='col-sm-4'>

@@ -1,5 +1,22 @@
 <?php
 /**************************************
+is_profanity($word)
+
+uses Google's profanity API
+***************************************/
+function is_profanity($q,$json=0) {
+	$wordlist = file("./badwords.txt");
+	for ($i=0;$i<count($wordlist);$i++) {
+		$trimmed = trim($wordlist[$i]);
+		$f = "/{$trimmed}/i";
+		if (preg_match($f, $q)) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
+/**************************************
 htmlallentities($str)
 
 
@@ -88,9 +105,10 @@ function achievementlist($mysqli, $onid){
 }
 
 /**************************************
-mycurrentrequestslist($mysqli, $onid)
-
+* mycurrentrequestslist($mysqli, $onid)
+*
 ***************************************/
+
 function mycurrentrequestslist($mysqli, $onid){
 	$query = "SELECT * FROM users WHERE onid = '$onid'";
 	$result = $mysqli->query($query);
@@ -105,7 +123,6 @@ function mycurrentrequestslist($mysqli, $onid){
 		$returnvalue[] = $row; 
 	return $returnvalue;
 }
-
 
 /**************************************
 requestslist($mysqli, $onid)
