@@ -40,6 +40,7 @@ echo '<body>';
 if (isset($_REQUEST['btn-send'])) {
 	$userlevel = $mysqli->real_escape_string($_REQUEST['userlevel']);
 	$body = $mysqli->real_escape_string($_REQUEST['body']);
+	$body = stripslashes(stripslashes(htmlspecialchars_decode(str_replace(array('\r\n', '\r', '\n'), "", $body))));
 	$subject = $mysqli->real_escape_string($_REQUEST['subject']);
 	$query = "SELECT * FROM users WHERE userlevel >= $userlevel ORDER BY onid ASC";
 	$result = $mysqli->query($query);
@@ -52,6 +53,7 @@ if (isset($_REQUEST['btn-send'])) {
 
 if (isset($_REQUEST['btn-test'])) {
 	$body = $mysqli->real_escape_string($_REQUEST['body']);
+	$body = stripslashes(stripslashes(htmlspecialchars_decode(str_replace(array('\r\n', '\r', '\n'), "", $body))));
 	$subject = $mysqli->real_escape_string($_REQUEST['subject']);
 	email_message($subject, $userrow['onid']. '@oregonstate.edu', $body);
 }
@@ -61,15 +63,15 @@ if (isset($_REQUEST['btn-test'])) {
 <nav class="navbar navbar-inverse navbar-fixed-top">
 		<a class="navbar-brand" href="http://www.oregonstate.edu">Oregon State University</a>
 		<div style="padding-right:1%;">
-		<?php
-		if (isset($onid)){
-			echo '<div class="navbar-brand pull-right" style="padding-right:1%;"><span class="glyphicon glyphicon-user"></span>' . $onid . ' - <a href="' . $_SERVER['PHP_SELF'] . '?logout">Logout</a></div>';
-		} else {
-			echo '<a href="' . $_SERVER['PHP_SELF'] . '?login"><button type="button" class="btn btn-default navbar-btn pull-right">Sign in</button></a>';
-		}
-		?>
+<?php
+if (isset($onid)){
+	echo '<div class="navbar-brand pull-right" style="padding-right:1%;"><span class="glyphicon glyphicon-user"></span> <a href="../profile.php">Account (' . $onid . ')</a> - <a href="' . $_SERVER['PHP_SELF'] . '?logout">Logout</a> - <a href="../home.php">Home</a></div>';
+} else {
+	echo '<a href="' . $_SERVER['PHP_SELF'] . '?login"><button type="button" class="btn btn-default navbar-btn pull-right">Sign in</button></a>';
+}
+?>
 		</div>
-	</nav>
+</nav>
 
 <?php
 

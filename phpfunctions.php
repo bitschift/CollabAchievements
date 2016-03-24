@@ -178,6 +178,46 @@ function approvalslist($mysqli){
 	return $returnvalue;	
 }
 
+function generateuserleveloptions($mysqli, $userid, $hash){
+	$script = "<script>
+	function updateUserLevel".$userid."() {
+		var userlevel = $('#userlevel" . $userid . "').val();
+		var hash = '$hash';
+		var userid = $userid;
+		$.ajax({
+			type: 'GET',
+			url: './ajax_updateuserlevel.php',
+			dataType: 'html',
+			data: { userhash: hash,
+					userlevel: userlevel,
+					userid: userid },
+			success: function(result) {
+				}
+		});
+	}
+</script>";
+	$query = "SELECT * FROM users WHERE id = $userid";
+	//echo $query . '<BR>';
+	$result = $mysqli->query($query);
+	if ($result == NULL)
+		return '';
+	$row = $result->fetch_array();
+	$options = 	'<select id="userlevel' . $userid . '"><option value="0" ' . ( $row['userlevel'] == 0 ? 'selected' : '' )  . '>New</option>' .
+				'<option value="1" ' . ( $row['userlevel'] == 1 ? 'selected' : '' )  . '>Standard</option>' .
+				'<option value="2" ' . ( $row['userlevel'] == 2 ? 'selected' : '' )  . '>Reviewer</option>' .
+				'<option value="3" ' . ( $row['userlevel'] == 3 ? 'selected' : '' )  . '>Admin</option>';
+	$options .= '</select><button onclick="updateUserLevel' . $userid . '()">Update</button>';
+	
+	if ($row['userlevel'] == 3)
+			return '<td sorttable_customkey="'.$row['userlevel'].'">' . $options . $script . '</td>'; 
+		else if ($row['userlevel'] == 2)
+			return '<td sorttable_customkey="'.$row['userlevel'].'">' . $options . $script . '</td>'; 
+		else if ($row['userlevel'] == 1)
+			return '<td sorttable_customkey="'.$row['userlevel'].'">' . $options . $script . '</td>'; 
+		else if ($row['userlevel'] == 0)
+			return '<td sorttable_customkey="'.$row['userlevel'].'">' . $options . $script . '</td>';	
+}
+
 function addachievement($mysqli, $achievement, $level, $id){
 	
 	$empRes = $mysqli->query("SELECT achievements.*, levels.level FROM achievements INNER JOIN levels ON levels.id = achievements.levelid WHERE userid='$id'");

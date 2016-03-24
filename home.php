@@ -4,13 +4,12 @@ include_once 'header.php';
 echo '<body>';
 
 if ($userrow['userlevel'] > 1) {
-	echo '<div style="margin-top:5em;background-color:#f2f2f2;border-radius:center:10px;" class="col-sm-2">
+	echo '<div style="position:fixed;margin-top:5em;background-color:#f2f2f2;border-radius:center:10px;" class="col-sm-2">
 		<h2>Clocking</h2>
 		<form class="form-group">
 		<p>I am in room<p> 
 		<select id="room" class="form-control">
-		<option value="1110">1110</option>
-		<option value="1115">1115</option>
+		<option value="1">KEC 1119</option>
 		</select>
 		<input type="hidden" id="id" value=', $userrow['id'], '><br><button onclick="setEmpStatus()">Update</button>
 		<button onclick="empLogout()">Logout</button></form></div>';	
@@ -189,15 +188,15 @@ if(isset($_REQUEST['btn-endorse'])) { //This is to be reworked/removed soon
 <nav class="navbar navbar-inverse navbar-fixed-top">
 		<a class="navbar-brand" href="http://www.oregonstate.edu">Oregon State University</a>
 		<div style="padding-right:1%;">
-		<?php
-		if (isset($onid)){
-			echo '<div class="navbar-brand pull-right" style="padding-right:1%;"><span class="glyphicon glyphicon-user"></span> ' . $onid . ' - <a href="' . $_SERVER['PHP_SELF'] . '?logout">Logout</a> - <a href="profile.php">Edit Profile</a></div>';
-		} else {
-			echo '<a href="' . $_SERVER['PHP_SELF'] . '?login"><button type="button" class="btn btn-default navbar-btn pull-right">Sign in</button></a>';
-		}
-		?>
+<?php
+if (isset($onid)){
+	echo '<div class="navbar-brand pull-right" style="padding-right:1%;"><span class="glyphicon glyphicon-user"></span> <a href="profile.php">Account (' . $onid . ')</a> - <a href="' . $_SERVER['PHP_SELF'] . '?logout">Logout</a> - <a href="home.php">Home</a></div>';
+} else {
+	echo '<a href="' . $_SERVER['PHP_SELF'] . '?login"><button type="button" class="btn btn-default navbar-btn pull-right">Sign in</button></a>';
+}
+?>
 		</div>
-	</nav>
+</nav>
 
 <?php
 
@@ -321,7 +320,7 @@ if ($userrow['userlevel'] > 1){
 <?php
 if ($userrow['userlevel'] > 2){
 	echo "<div class='row'><div style='padding-top:3em;' class='col-sm-8 col-sm-offset-2' ><h3>Admin Tasks</h3></div></div>";
-	echo "<div class='row'><div style='padding-top:3em;' class='col-sm-8 col-sm-offset-2' ><h4><a href='./admin/userlist.php'>User List</a> --- <a href='./admin/messageusers.php'>Message Users</a></h4></div></div>";
+	echo "<div class='row'><div style='padding-top:3em;' class='col-sm-8 col-sm-offset-2' ><h4><a href='./admin/userlist.php'>User List</a> --- <a href='./admin/messageusers.php'>Message Users</a> --- <a href='./admin/editleveltext.php'>Edit Achievement Levels</a></h4></div></div>";
 	echo "<div class='row'><div style='padding-top:3em;' class='col-sm-6 col-sm-offset-2' >";
 	
 	$approveids = Array();

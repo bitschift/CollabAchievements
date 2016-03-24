@@ -31,7 +31,7 @@ if (isset($_REQUEST['logout'])) {
 if(isset($_REQUEST['btn-approve']) AND isset($_REQUEST['hash'])) {
 	$hash = mysqli_real_escape_string($mysqli, $_REQUEST['hash']);
 	$comment = mysqli_real_escape_string($mysqli, $_REQUEST['comment']);
-	$query = "SELECT reviews.id FROM reviews INNER JOIN requests ON requests.id = reviews.requestid WHERE requests.hash = '$hash'";
+	$query = "SELECT reviews.id FROM reviews INNER JOIN requests ON requests.id = reviews.requestid WHERE reviews.reviewer = " . $userrow['id'] . " AND requests.hash = '$hash'";
 	//echo '<br><br><br>' . $query . '<br>';
 	$result = $mysqli->query($query);
 	$row = $result->fetch_assoc();
@@ -47,7 +47,7 @@ if(isset($_REQUEST['btn-deny']) AND isset($_REQUEST['hash'])) {
 	$hash = mysqli_real_escape_string($mysqli, $_REQUEST['hash']);
 	$comment = mysqli_real_escape_string($mysqli, $_REQUEST['comment']);
 	$deny_select = mysqli_real_escape_string($mysqli, $_REQUEST['deny_select']);
-	$query = "SELECT reviews.id FROM reviews INNER JOIN requests ON requests.id = reviews.requestid WHERE requests.hash = '$hash'";
+	$query = "SELECT reviews.id FROM reviews INNER JOIN requests ON requests.id = reviews.requestid WHERE reviews.reviewer = " . $userrow['id'] . " AND requests.hash = '$hash'";
 	//echo '<br><br><br>' . $query . '<br>';
 	$result = $mysqli->query($query);
 	$row = $result->fetch_assoc();
@@ -63,7 +63,7 @@ if(isset($_REQUEST['btn-abstain']) AND isset($_REQUEST['hash'])) {
 	$hash = mysqli_real_escape_string($mysqli, $_REQUEST['hash']);
 	$comment = mysqli_real_escape_string($mysqli, $_REQUEST['comment']);
 	$abstain_select = mysqli_real_escape_string($mysqli, $_REQUEST['abstain_select']);
-	$query = "SELECT reviews.id FROM reviews INNER JOIN requests ON requests.id = reviews.requestid WHERE requests.hash = '$hash'";
+	$query = "SELECT reviews.id FROM reviews INNER JOIN requests ON requests.id = reviews.requestid WHERE reviews.reviewer = " . $userrow['id'] . " AND requests.hash = '$hash'";
 	//echo '<br><br><br>' . $query . '<br>';
 	$result = $mysqli->query($query);
 	$row = $result->fetch_assoc();
@@ -86,10 +86,10 @@ if (isset($_REQUEST['reviewhash'])){
 	} else {
 		echo "<div class='row'><div style='padding-top:5em;' class='col-sm-8 col-sm-offset-2'><h3>About to process hash: $hash</h3></div></div>";
 		$row = $result->fetch_assoc();
-		if ($row['status'] != 0) { //Already completed. No work reviewing needed
-			echo "<div class='row'><div style='padding-top:5em;' class='col-sm-8 col-sm-offset-2'><h3>This request has already been processed and a verdict rendered. Thank you for your assistance!</h3></div></div>";
-		} else if ($row['verdict'] != 0){
+		if ($row['verdict'] != 0){
 			echo "<div class='row'><div style='padding-top:5em;' class='col-sm-8 col-sm-offset-2'><h3>You have already voted on this request. If you need to change your vote, please email and administrator.</h3></div></div>"; 
+		} else if ($row['status'] != 0) { //Already completed. No work reviewing needed
+			echo "<div class='row'><div style='padding-top:5em;' class='col-sm-8 col-sm-offset-2'><h3>This request has already been processed and a verdict rendered. Thank you for your assistance!</h3></div></div>";
 		} else {
 			$query = "SELECT * FROM users WHERE id = " . $row['requesterid'];
 			$result = $mysqli->query($query);
@@ -173,9 +173,7 @@ if (isset($_REQUEST['reviewhash'])){
 		}
 	}
 
-} else if (isset($_REQUEST['requesthash'])){
-	echo '';	
-} else {
+} else  {
 ?>	
 	<div class='row'><div style="padding-top:5em;" class='col-sm-8 col-sm-offset-2'><h3>No Data Submitted</h3></div></div>
 <?php

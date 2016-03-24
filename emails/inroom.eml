@@ -1,0 +1,5 @@
+<div style='width:80%;border-style:dashed;border-width:2px;margin:3%;padding:2%;'>
+Dear {{firstname}},<BR><BR>
+<p>This is a reminder that you are currently listed as being in {{name}} for the Mastery Challenge Program. If you are still there helping out, <b>Good Job!</b> If not, please click the link below so that the webpage updates showing you are no longer available. Please note, the link below is different each time so be sure you are clicking the most recent email link!</p>
+<a href="http://eecs.oregonstate.edu/education/achievements2/hall/logout.php?sessionhash={{hash}}">Done Helping in {{name}}</a>
+</div>
