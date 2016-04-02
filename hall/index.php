@@ -97,7 +97,7 @@ $calendar = '
 
 	<div class="panel panel-default" style="width:100%;">
 	<div class="panel-heading">Who\'s Available</div>
-	<table class="table">';
+	<table class="table table-condensed">';
 	
 $query = "SELECT users.username, rooms.name, users.id FROM clock INNER JOIN users ON users.id = clock.userid INNER JOIN rooms ON rooms.id = clock.roomid WHERE clock.roomid = $roomid AND timeout = '0000-00-00 00:00:00'";
 $clockRes = $mysqli->query($query);
@@ -107,21 +107,22 @@ while ($clockRow = $clockRes->fetch_array(MYSQLI_ASSOC)){
 	//echo $query . '<BR>';
 	$calendar .=   '<tr><td>' . $clockRow['username'] . ': ';
 	while ($imagerow = $imageresult->fetch_assoc())
-		$calendar .=   '<img src="../img/' . $imagerow['image'] . '" style="height:3em;">';
+		$calendar .=   '<img src="../img/' . $imagerow['image'] . '" style="height:2em;">';
 	$calendar .=   '</tr></td>';
 } 
 $calendar .=  '</table></div>
-	<iframe src="https://www.google.com/calendar/embed?showTitle=0&amp;showNav=0&amp;showDate=0&amp;showPrint=0&amp;showTabs=0&amp;showCalendars=0&amp;showTz=0&amp;mode=WEEK&amp;height=600&amp;wkst=1&amp;bgcolor=%23FFFFFF&amp;src=oregonstate.edu_b87rj2po68mq8srlr972fcbbd4%40group.calendar.google.com&amp;color=%2323164E&amp;ctz=America%2FLos_Angeles" style=" border-width:0 " width="100%" height="500px" frameborder="0" scrolling="no"></iframe>
+	<iframe src="https://calendar.google.com/calendar/embed?showNav=0&amp;showDate=0&amp;showPrint=0&amp;showTabs=0&amp;showCalendars=0&amp;showTz=0&amp;mode=AGENDA&amp;height=375&amp;wkst=1&amp;bgcolor=%23FFFFFF&amp;src=oregonstate.edu_b87rj2po68mq8srlr972fcbbd4%40group.calendar.google.com&amp;color=%23875509&amp;ctz=America%2FLos_Angeles" style="border-width:0" width="100%" height="375" frameborder="0" scrolling="no"></iframe>
 	<h1>KEC1119 Mastery Challenge Lounge</h1>Last Updated: ' . date("l",time()) . ' at ' . date("g:ia",time());
 
 $information = '
 <div class="alert">
-<h4><p>Welcome to the Mastery Challenge Lounge. This lounge is dedicated to helping anyone interested in doing cool projects to learn new skills and create amazing things. The volunteers in this room are here to help you with things like electrical design, microcontroller programming, PCB design, 3D Printing, CAD Modelling, Laser Cutting, PHP, Python, and much more!</p>
+<h4>Welcome to the Mastery Challenge Lounge</h4>
+<p>This lounge is dedicated to helping anyone interested in doing cool projects to learn new skills and create amazing things. The volunteers in this room are here to help you with things like electrical design, microcontroller programming, PCB design, 3D Printing, CAD Modelling, Laser Cutting, PHP, Python, and much more!</p>
 <p>To make the most of this room, join our on-line Mastery Challenge by either scanning this QR code or visiting the website below. Login and sign-up and pick your challenge. Prizes are awarded each term for people completing challenges!</p>
 <ul>
-<li>Winter 2016: $150 Cash Prize to the most achievements this term</li>
-<li>Winter 2016: $150 Cash Prize for the most level 2 and higher achievements this term</li>
-<li>Winter 2016: If you earn even one achievement this term, you will be entered into a drawing for a $50 prize.</li>
+<li>Spring 2016: $100 Cash Prize to the most achievements this term</li>
+<li>Spring 2016: $100 Cash Prize for the most level 2 and higher achievements this term</li>
+<li>Spring 2016: If you earn even one achievement this term, you will be entered into a drawing for a $100 prize.</li>
 </ul>
 </div>
 <div class="row">

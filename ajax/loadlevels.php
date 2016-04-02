@@ -1,7 +1,4 @@
 <?php
-
-
-
 require_once ('../phpfunctions.php');
 //include_once '../casconnect.php';
 include_once '../dbconnect.php';
@@ -47,6 +44,5 @@ if (isset($_REQUEST['requestachievement']) && $_REQUEST['requestachievement'] !=
 	while ($row = $result->fetch_assoc()){
 		echo '<option value="'.$i.'">Level '.$i.'</option>'; 
 		$i++;
-		
 	}
 }

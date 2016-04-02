@@ -151,17 +151,17 @@ if (isset($_REQUEST['reviewhash'])){
 			<div class='row'><div class='col-sm-5 col-sm-offset-2'>";
 			//Reviewer Feedback!!!
 			
-			$query = "SELECT reviews.*, requests.hash FROM reviews INNER JOIN requests ON requests.id  = reviews.requestid WHERE requests.hash = '$hash' ORDER BY reviewer ASC";
+			$query = "SELECT reviews.*, requests.hash, users.onid FROM reviews INNER JOIN requests ON requests.id  = reviews.requestid INNER JOIN users ON users.id = reviews.reviewer WHERE requests.hash = '$hash' ORDER BY reviewer ASC";
 			//echo '<br><br><br>' . $query . '<br>';
 			$result = $mysqli->query($query);
 			while ($temprow = $result->fetch_assoc()){
 				if ($temprow['verdict'] == 0){
-					echo $temprow['id'] . ": Not Recorded<BR>";
+					echo $temprow['onid'] . ": Not Recorded<BR>";
 				} else {
 					$query = "SELECT * FROM verdicts WHERE id = " . $temprow['verdict'];
 					$newresult = $mysqli->query($query);
 					$verdictrow = $newresult->fetch_assoc();
-					echo $temprow['id'] . ": " . $verdictrow['verdict'] . ': ' . $verdictrow['content'] . '<BR>';
+					echo $temprow['onid'] . ": " . $verdictrow['verdict'] . ': ' . $verdictrow['content'] . '<BR>';
 				}
 				
 			}

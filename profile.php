@@ -4,8 +4,32 @@ include_once 'header.php';
 if (isset($_POST['user_choice'])) {
 	$avatar = $_POST['user_choice'];
 	$id = $userrow['id'];
-	$query = "UPDATE users SET avatar='$avatar' WHERE id='$id'";
+	
+	$file_ext = strtolower(end(explode('.', $avatar)));
+	$file_name = $userrow['hash'] . '.' . $file_ext;
+	
+	$query = "UPDATE users SET avatar='$file_name' WHERE id='$id'";
+	
+	$isdefault = 0;
+	$imgRes = $mysqli->query("SELECT * FROM defaultImage ORDER BY id DESC");
+ 	
+	for($i=0;$i<$imgRes->num_rows;$i++) {
+		$imgRow = $imgRes->fetch_array(MYSQLI_ASSOC);
+		if ($imgRow['url'] == $userrow['avatar']) {
+			$isdefault = 1;
+		}
+	}
+ 	
+	if($isdefault == 0) {
+		if (file_exists("avatars/".$userrow['avatar'])) {
+			unlink("avatars/".$userrow['avatar']);
+		}
+	}
+  
+	copy("avatars/".$avatar, "avatars/".$file_name);
+	
 	$mysqli->query($query);
+	
 	header("Location: profile.php");
 }
 
@@ -29,10 +53,6 @@ if (isset($_FILES['image'])) {
 
 	$file_name = $userrow['hash'] . '.' . $file_ext;
 
-	$jpegfile = 'avatars/' . $userrow['hash'] . '.jpeg';
-	$jpgfile = 'avatars/' . $userrow['hash'] . '.jpg';
-	$pngfile = 'avatars/' . $userrow['hash'] . '.png';
-
 	$extensions = array("jpeg","jpg","png");
 
 	if (in_array($file_ext, $extensions) === false) {
@@ -46,12 +66,21 @@ if (isset($_FILES['image'])) {
 	}
 
 	if (empty($errors) == true) {
-		if (file_exists($jpegfile)) {
-			unlink($jpegfile);
-		} else if (file_exists($jpgfile)) {
-			unlink($jpgfile);
-		} else if (file_exists($pngfile)) {
-			unlink($pngfile);
+		$isdefault = 0;
+		$imgRes = $mysqli->query("SELECT * FROM defaultImage ORDER BY id DESC");
+ 	
+		for($i=0;$i<$imgRes->num_rows;$i++) {
+			$imgRow = $imgRes->fetch_array(MYSQLI_ASSOC);
+			if ($imgRow['url'] == $userrow['avatar']) {
+				$isdefault = 1;
+			}		
+		}
+ 	
+		if($isdefault == 0) {
+			if (file_exists("avatars/".$userrow['avatar'])) {
+				echo '<h2><br><br><br>unlink</h2>';
+				unlink("avatars/".$userrow['avatar']);
+			}
 		}
 		
 		move_uploaded_file($file_tmp, "avatars/".$file_name);

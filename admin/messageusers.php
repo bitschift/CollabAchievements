@@ -14,7 +14,7 @@ $res = $mysqli->query("SELECT * FROM users WHERE onid = '$onid'");
 $userrow = $res->fetch_array(MYSQLI_ASSOC);		//keep an array of elements in the user's table for easy access
 
 if (isset($_REQUEST['logout'])) {
-	phpCAS::logoutWithRedirectService('http://eecs.oregonstate.edu/education/achievements3');
+	phpCAS::logoutWithRedirectService('http://eecs.oregonstate.edu/education/achievements');
 }
 
 echo '<!DOCTYPE html>

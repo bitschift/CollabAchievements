@@ -87,7 +87,7 @@ if (isset($_REQUEST['reviewhash'])){
 		echo "<div class='row'><div style='padding-top:5em;' class='col-sm-8 col-sm-offset-2'><h3>About to process hash: $hash</h3></div></div>";
 		$row = $result->fetch_assoc();
 		if ($row['verdict'] != 0){
-			echo "<div class='row'><div style='padding-top:5em;' class='col-sm-8 col-sm-offset-2'><h3>You have already voted on this request. If you need to change your vote, please email and administrator.</h3></div></div>"; 
+			echo "<div class='row'><div style='padding-top:5em;' class='col-sm-8 col-sm-offset-2'><h3>You have already voted on this request. If you need to change your vote, please email an administrator.</h3></div></div>"; 
 		} else if ($row['status'] != 0) { //Already completed. No work reviewing needed
 			echo "<div class='row'><div style='padding-top:5em;' class='col-sm-8 col-sm-offset-2'><h3>This request has already been processed and a verdict rendered. Thank you for your assistance!</h3></div></div>";
 		} else {

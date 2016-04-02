@@ -21,9 +21,9 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-$termBegin = '2016-01-03';
-$termEnd = '2016-03-10';
-$termName = 'Winter 2016';
+$termBegin = '2016-03-23';
+$termEnd = '2016-06-15';
+$termName = 'Spring 2016';
 ?>
 
 <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -47,13 +47,12 @@ To begin log in above.
 <li>Each term we will have prizes for the most levels achieved in a term and for various other challenges each term!
 <ul></p>
 
-<h2>Winter 2016: $150 Cash Prize to the most achievements this term</h2>
-<h2>Winter 2016: $150 Cash Prize for the most level 2 and higher achievements this term</h2>
-<h2>Winter 2016: If you earn even one achievement this term, you will be entered into a drawing for a $50 prize.</h2>
+<h2>Spring 2016: $100 Cash Prize to the most achievements this term</h2>
+<h2>Spring 2016: $100 Cash Prize for the most level 2 and higher achievements this term</h2>
+<h2>Spring 2016: If you earn even one achievement this term, you will be entered into a drawing for a $100 prize.</h2>
 </div>
 
 <div class='col-sm-4'>
-
 <div class="panel panel-default" style="width:100%;">
   <div class="panel-heading">Most Achievements (<?php echo $termName;?>)</div>
   <table class="table">
@@ -75,16 +74,19 @@ while ($requestRow = $requestRes->fetch_array(MYSQLI_ASSOC)) {
 </div>
 
 <div class="panel panel-default" style="width:100%;">
-  <div class="panel-heading">Most Achievements</div>
+  <div class="panel-heading">Most Achievements (Level 2 or Higher) - (<?php echo $termName;?>)</div>
   <table class="table">
 <?php
-$requestRes = $mysqli->query("SELECT userid, COUNT(userid) as count FROM achievements GROUP BY userid ORDER BY count DESC LIMIT 10");
-for ($i=0;$i<10;$i++) {
-	$requestRow = $requestRes->fetch_array(MYSQLI_ASSOC);
+$query = "SELECT userid, COUNT(*) as count FROM achievements INNER JOIN levels ON levels.id  = achievements.levelid WHERE issuedDate > STR_TO_DATE('$termBegin','%Y-%m-%d') AND issuedDate < STR_TO_DATE('$termEnd','%Y-%m-%d') AND levels.level > 2 GROUP BY userid ORDER BY count DESC LIMIT 10";
+//echo $query;
+$requestRes = $mysqli->query($query);
+$i = 0;
+while ($requestRow = $requestRes->fetch_array(MYSQLI_ASSOC)) {
 	$requesterid = $requestRow['userid'];
 	$userRes = $mysqli->query("SELECT * FROM users WHERE id='$requesterid'");
 	$userRow = $userRes->fetch_array(MYSQLI_ASSOC);
 	echo '<tr><td>' . ($i+1) . ': ' . $userRow['username'] . '</td><td><p class="text-right" style="margin: 0;padding: 0;">' . $requestRow['count'] . ' Achievements</p></td></tr>';
+	$i++;
 }
 
 ?>
